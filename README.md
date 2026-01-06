@@ -203,4 +203,4 @@ Suggestions and improvements are welcome! Feel free to open an issue or submit a
 
 ---
 
-*Last updated: January 2026*
+*Last updated: January 6, 2026*
