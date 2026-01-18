@@ -187,10 +187,10 @@ Pi5#1 Pi5#2 CM3588 NAS
 - Allpowers P300 UPS
 
 ### 🛒 Must Buy (~$150-190)
-- [ ] [UGREEN 200W USB-C Hub](https://www.amazon.com/dp/B0C6DX66TN): **$100**
-- [ ] [USB-C to 12V trigger cable × 2](https://www.amazon.com/s?k=usb+c+pd+trigger+cable+12v): **$20-30**
-- [ ] [Monoprice SlimRun Cat6 6" (6-pack)](https://www.amazon.com/dp/B003L18SHC): **$15**
-- [ ] [USB-C cables 6-12" (4-pack)](https://www.amazon.com/dp/B09LCJPZ1P): **$15-20**
-- [ ] [Velcro strips](https://www.amazon.com/dp/B00006RSP1) + [zip ties](https://www.amazon.com/dp/B07VRSQ6YL) + [cable clips](https://www.amazon.com/dp/B07VFZ5K5D): **$20**
-- [ ] [Router 1U bracket 3D print service](https://www.shapeways.com/): **$25-45** (or [PCBWay](https://www.pcbway.com/rapid-prototyping/3d-printing/) + [STL files](https://www.thingiverse.com/search?q=10+inch+rack+router+mount))
+- [ ] [UGREEN 200W USB-C Hub](#power-infrastructure) → [Shop](https://www.amazon.com/dp/B0C6DX66TN): **$100**
+- [ ] [USB-C to 12V trigger cable × 2](#power-infrastructure) → [Shop](https://www.amazon.com/s?k=usb+c+pd+trigger+cable+12v): **$20-30**
+- [ ] [Monoprice SlimRun Cat6 6" (6-pack)](#cables) → [Shop](https://www.amazon.com/dp/B003L18SHC): **$15**
+- [ ] [USB-C cables 6-12" (4-pack)](#cables) → [Shop](https://www.amazon.com/dp/B09LCJPZ1P): **$15-20**
+- [ ] [Velcro strips + zip ties + cable clips](#cables) → [Velcro](https://www.amazon.com/dp/B00006RSP1) | [Zip ties](https://www.amazon.com/dp/B07VRSQ6YL) | [Cable clips](https://www.amazon.com/s?k=adhesive+cable+clips): **$20**
+- [ ] [Router 1U bracket 3D print service](#mounting-hardware-inside-rack) → [Shapeways](https://www.shapeways.com/) | [PCBWay](https://www.pcbway.com/rapid-prototyping/3d-printing/) | [STL files](https://www.thingiverse.com/search?q=10+inch+rack+router+mount): **$25-45**
 
