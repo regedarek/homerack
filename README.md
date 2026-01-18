@@ -36,16 +36,74 @@ Based on [geerlingguy/mini-rack#4](https://github.com/geerlingguy/mini-rack/issu
   - Output: 300W
   - Type: Powerbank UPS
 
+## Power Strategy: USB-C Centralized Power
+
+### USB-C PD Hub Approach
+Power everything from a single high-wattage USB-C PD hub connected to UPS.
+
+**Power Requirements:**
+- 2x Pi 5: ~30W each = 60W
+- CM3588 NAS: 48W (12V 4A via USB-C PD trigger or adapter)
+- Network switch: ~15W (check USB-C compatibility)
+- 5G Antenna: ~20W (verify USB-C option)
+- **Total: ~140-150W**
+
+**Recommended Hub:**
+- [Anker 735 (GaNPrime 65W)](https://www.amazon.com/Anker-Charger-GaNPrime-Compact-Foldable/dp/B0B2MH6Y94) x2 = $80
+- OR [UGREEN 200W USB-C Charger](https://www.amazon.com/UGREEN-Charger-Desktop-Charging-Station/dp/B0C6DX66TN) 6-port = $100
+- OR [Satechi 165W USB-C PD Compact GaN](https://www.amazon.com/Satechi-Charger-Desktop-MacBook-Samsung/dp/B09FT7MJC3) 4-port = $120
+
+**Benefits:**
+- Single AC cable from UPS to hub
+- Cleaner than AC PDU + multiple adapters
+- More efficient (GaN technology)
+- Compact mounting behind rack
+- Easy cable management
+
+**Considerations:**
+- Verify CM3588 supports USB-C PD 12V trigger (or use USB-C to barrel adapter)
+- Check if switch has USB-C option (or use small AC/DC adapter)
+- May need USB-C to barrel jack cables for some devices
+
 ## Missing/Needed Items
 
-### Network Switch
-- [ ] 10" rack-mountable switch (5-8 ports minimum)
-- Options: [Mikrotik CSS610-8G-2S+in](https://mikrotik.com/product/css610_8g_2s_in) (~$110) or similar
+### Network & Connectivity
+
+**Selected: MikroTik hAP ac²** (~$60)
+- 5-port Gigabit switch (enough for 2 Pis + NAS + WAN + spare)
+- Dual-band WiFi: 2.4GHz (300Mbps) + 5GHz (867Mbps)
+- **WiFi Range:** ~30-50ft indoors (typical for internal antennas)
+  - Good for apartment/small home
+  - Limited range - router inside metal rack may reduce signal
+  - Consider external placement if WiFi coverage needed
+- PoE output: 24V passive PoE on port 5 (max 2A / 48W)
+
+**⚠️ T-Mobile 5G Antenna Compatibility Issue:**
+- Your antenna: **FWA-ED309B** (Vistron NeWeb)
+- **Power requirement:** Likely 802.3at PoE+ (25.5W) or proprietary
+- **MikroTik hAP ac²:** Only supports 24V passive PoE (incompatible with 802.3af/at)
+
+**Solutions:**
+1. **Use included T-Mobile power adapter** (recommended)
+   - Keep antenna on separate power
+   - No PoE needed
+2. **Add 802.3at PoE injector** (~$25)
+   - [TP-Link TL-PoE160S](https://www.amazon.com/TP-Link-Injector-Gigabit-Adapter-TL-PoE160S/dp/B003CFATQK) (802.3at, 30W)
+   - Between hAP ac² and antenna
+3. **Upgrade router** to one with 802.3af/at PoE
+   - More expensive, not recommended
+
+**Decision: Use T-Mobile's included power adapter for antenna**
+- Simpler and reliable
+- No compatibility issues
+- Antenna stays on UPS via USB-C hub or direct AC
 
 ### Power Distribution
-- [ ] [USB-C PD hub/charger](https://www.amazon.com/Charger-GaN-Charging-Station-MacBook/dp/B0C6DX66TN) for Pi 5s (65W per Pi recommended)
-- [ ] 10" rack PDU for AC outlets ([Tupavco](https://www.amazon.com/Tupavco-TP1552-Rackmount-Power-Strip/dp/B00FUXYBCU) ~$45)
+- [ ] High-wattage USB-C PD hub (150W+ total, 4-6 ports)
+  - Option 1: [UGREEN 200W 6-port](https://www.amazon.com/UGREEN-Charger-Desktop-Charging-Station/dp/B0C6DX66TN) ~$100
+  - Option 2: [Satechi 165W 4-port GaN](https://www.amazon.com/Satechi-Charger-Desktop-MacBook-Samsung/dp/B09FT7MJC3) ~$120
 - [ ] Short USB-C cables (6-12")
+- [ ] USB-C to barrel jack adapters (if needed for NAS/switch)
 
 ### Mounting Hardware
 - [ ] Pi mounting bracket ([DeskPi 2U 4x Pi NVMe Mount](https://www.amazon.com/DeskPi-Raspberry-Rackmount-Bracket-Standard/dp/B0CQV99MPM) ~$100 or custom)
@@ -67,32 +125,51 @@ Based on [geerlingguy/mini-rack#4](https://github.com/geerlingguy/mini-rack/issu
 - UPS: External or bottom shelf
 - **Total: ~4-5U minimum**
 
-### Power Budget
-- Pi 5 (each): ~25W peak (use 65W PD charger for headroom)
-- CM3588 NAS: ~48W (12V 4A)
-- Network switch: ~10-15W
-- 5G Antenna: ~20W
-- **Total: ~150-180W continuous**
-- UPS runtime: ~1.5-2hrs at full load (288Wh)
+### Power Budget (USB-C Centralized)
+- Pi 5 (each): ~27W actual, 30W allocated
+- CM3588 NAS: 48W (12V 4A via USB-C PD)
+- Network switch: ~15W (USB-C or small adapter)
+- 5G Antenna: ~20W (verify USB-C compatibility)
+- **Total: ~140-150W from USB hub**
+- UPS runtime: ~1.5-2hrs at full load (288Wh / 150W)
+- **Hub requirement: 150W+ multi-port USB-C PD**
 
-### Network
-- All devices: 1Gbps minimum
-- CM3588 NAS: 2.5Gbps capable (verify switch support if needed)
-- Uplink: 5G antenna speed dependent
+### Network Topology
+**Devices to connect:**
+1. 2x Pi 5
+2. CM3588 NAS
+3. 5G Antenna (via PoE from router)
+4. Router WiFi for wireless devices
+
+**Total wired ports needed: 3** (2 Pis + NAS)
+
+**Recommended Setup:**
+- MikroTik hAP ac² as main router
+- Built-in 5-port switch (enough for 2 Pis + NAS + WAN + 1 spare)
+- PoE output port for 5G antenna
+- WiFi AP included
+- Compact, can mount behind rack
+
+**WiFi Coverage Considerations:**
+- hAP ac² inside metal rack will reduce WiFi range
+- Options if WiFi coverage insufficient:
+  1. Mount router outside rack (on desk/wall)
+  2. Add separate WiFi AP later
+  3. Use mesh system for whole-home coverage
 
 ## Mounting Strategy
 
-### Option A: Compact Stack
-1. Bottom: Network switch (1U)
-2. Middle: Pi nodes (2U bracket)
-3. Top: CM3588 NAS (custom mount)
-4. External: 5G antenna (side/top), UPS (under rack)
+### Option A: Minimal Stack (Recommended)
+1. Bottom/Front: Pi nodes + CM3588 NAS (2U custom shelf)
+2. Bottom/Rear: WiFi router (behind rack, no U space)
+3. External: 5G antenna (desk/wall mount), UPS (under rack)
+4. **Total: 2U only**
 
-### Option B: Distributed
-1. Pi nodes + CM3588 on single custom shelf (2U)
-2. Network switch (1U)
-3. PDU on rear
-4. 5G antenna external mount
+### Option B: Premium Rackmount
+1. Bottom: MikroTik RB5009 router (1U rackmount)
+2. Top: Pi nodes + CM3588 NAS (2U bracket/shelf)
+3. External: 5G antenna, UPS
+4. **Total: 3U**
 
 ## Price Estimate
 
@@ -104,23 +181,28 @@ Based on [geerlingguy/mini-rack#4](https://github.com/geerlingguy/mini-rack/issu
 - UPS: ~$200
 
 ### To Buy
-- Network switch: $110
+- WiFi router with PoE: $60-200 (or router + PoE injector ~$75)
 - Mounting hardware: $100-150
-- USB-C PD charger: $25-50
-- Cables + PDU: $70-100
-- **Additional spend: ~$305-410**
+- USB-C PD hub (150W+): $100-120
+- Cables + adapters: $40-60
+- **Additional spend: ~$300-530**
 
-**Total project: ~$1,075-1,380**
+**Total project: ~$1,070-1,530**
 
 ## Next Steps
-1. Measure CM3588 NAS kit dimensions for mounting
-2. Decide on network switch (1Gbps vs 2.5Gbps)
-3. Choose USB-C power delivery solution
-4. Order mounting brackets/hardware
-5. Plan cable management strategy
+1. ✅ Router decision: MikroTik hAP ac² confirmed
+2. ✅ Antenna power: Use T-Mobile's included adapter (not PoE)
+3. Verify CM3588 NAS supports USB-C PD 12V or get USB-C to barrel adapter
+4. Test hAP ac² WiFi range from rack location (may need external placement)
+5. Measure CM3588 NAS kit dimensions for mounting
+6. Choose USB-C PD hub (150W+ with 4-6 ports)
+7. Order mounting brackets/hardware
+8. Plan cable management strategy
 
 ## Notes
 - Verify Pi 5 NVMe HAT compatibility with mounting bracket
 - Check if CM3588 NAS kit includes rack ears
 - Consider active cooling if stacking tightly
 - Test UPS runtime under actual load before production use
+- **T-Mobile antenna:** Model FWA-ED309B by Vistron NeWeb
+- hAP ac² WiFi may have limited range inside metal rack - test before permanent mounting
