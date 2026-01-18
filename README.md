@@ -1,5 +1,13 @@
 # THE RACK - Official Build Guide
 
+## Table of Contents
+- [1. Rack Specifications](#1-rack-specifications)
+- [2. Physical Layout](#2-physical-layout)
+- [3. Component List](#3-component-list)
+- [4. Network Diagram](#4-network-diagram)
+- [5. Power Diagram](#5-power-diagram)
+- [6. Shopping List](#6-shopping-list)
+
 ## 1. Rack Specifications
 
 **DeskPi RackMate TT** - 10" Mini Rack
