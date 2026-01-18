@@ -67,41 +67,41 @@
 
 | Device | Specs | Link |
 |--------|-------|------|
-| **Raspberry Pi 5 × 2** | 8GB + NVMe HAT | https://www.raspberrypi.com/products/raspberry-pi-5/ |
-| **CM3588 NAS** | FriendlyElec, 3× SATA | https://www.friendlyelec.com/index.php?route=product/product&product_id=294 |
-| **ASUS RT-AC1200G+** | AC1200, 4×GbE LAN | Standard router |
+| **Raspberry Pi 5 × 2** | 8GB + NVMe HAT | [Pi5 8GB](https://www.raspberrypi.com/products/raspberry-pi-5/) |
+| **CM3588 NAS** | FriendlyElec, 3× SATA | [CM3588](https://www.friendlyelec.com/index.php?route=product/product&product_id=294) |
+| **ASUS RT-AC1200G+** | AC1200, 4×GbE LAN | [Specs](https://www.asus.com/networking-iot-servers/wifi-routers/asus-wifi-routers/rt-ac1200g-plus/) |
 
 ### Mounting Hardware (Inside Rack)
 
 | Item | Purpose | Link |
 |------|---------|------|
-| **GeeekPi 1U Shelf × 2** | Pi & NAS mounting | https://www.amazon.com/dp/B0BPZ37MFS |
-| **3D Printed Bracket** | Router 1U mount | DIY - see design notes |
+| **GeeekPi 1U Shelf × 2** | Pi & NAS mounting | [Amazon B0BPZ37MFS](https://www.amazon.com/dp/B0BPZ37MFS) |
+| **3D Printed Bracket** | Router 1U mount | [Thingiverse Search](https://www.thingiverse.com/search?q=10+inch+rack+router+mount) |
 
 ### Power Infrastructure
 
 | Item | Specs | Location | Link |
 |------|-------|----------|------|
-| **Allpowers P300 UPS** | 288Wh, 300W output | External | https://www.allpowers.com/ |
-| **UGREEN 200W Hub** | 4×USB-C + 2×USB-A | Inside (rear mount) | https://www.amazon.com/dp/B0C6DX66TN |
-| **USB-C PD Trigger × 2** | 12V for NAS + Router | Inside | https://www.amazon.com/s?k=usb-c+12v+trigger |
+| **Allpowers P300 UPS** | 288Wh, 300W output | External | [Official](https://www.allpowers.com/products/allpowers-s300-portable-power-station) or [Amazon](https://www.amazon.com/dp/B09NNVQZTF) |
+| **UGREEN 200W Hub** | 4×USB-C + 2×USB-A | Inside (rear mount) | [Amazon B0C6DX66TN](https://www.amazon.com/dp/B0C6DX66TN) |
+| **USB-C PD Trigger × 2** | 12V for NAS + Router | Inside | [Amazon 12V Trigger](https://www.amazon.com/dp/B09WN3J6M7) |
 
 ### Network Infrastructure
 
 | Item | Purpose | Location | Link |
 |------|---------|----------|------|
-| **T-Mobile 5G Antenna** | FWA-ED309B | External | T-Mobile provided |
-| **PoE Injector** | 802.3at, 25.5W | Inside (side mount) | T-Mobile provided |
+| **T-Mobile 5G Antenna** | FWA-ED309B | External | [Specs](https://www.t-mobile.com/support/devices/t-mobile-5g-home-internet-gateway) |
+| **PoE Injector** | 802.3at, 25.5W | Inside (side mount) | [Generic PoE](https://www.amazon.com/dp/B003CFATQK) or T-Mobile provided |
 
 ### Cables
 
-| Type | Length | Qty | Purpose |
-|------|--------|-----|---------|
-| Cat6 patch | 6-12" | 3 | Router → Devices |
-| Cat6 patch | 3-6ft | 1 | PoE → Router WAN |
-| USB-C | 6-12" | 4 | Hub → Devices |
-| USB-C 12V trigger | 6-12" | 2 | NAS + Router power |
-| AC power | Included | 2 | Wall → UPS, UPS → Hub |
+| Type | Length | Qty | Purpose | Link |
+|------|--------|-----|---------|------|
+| Cat6 patch | 6-12" | 3 | Router → Devices | [Monoprice 6" 6-pack](https://www.amazon.com/dp/B003L18SHC) |
+| Cat6 patch | 3-6ft | 1 | PoE → Router WAN | [Monoprice 6ft](https://www.amazon.com/dp/B003L18SIU) |
+| USB-C | 6-12" | 4 | Hub → Devices | [Anker 4-pack](https://www.amazon.com/dp/B09LCJPZ1P) |
+| USB-C 12V trigger | 6-12" | 2 | NAS + Router power | [12V Trigger Cable](https://www.amazon.com/dp/B09WN3J6M7) |
+| AC power | Included | 2 | Wall → UPS, UPS → Hub | Included with devices |
 
 ## 4. Network Diagram
 
@@ -179,14 +179,15 @@ Pi#1 Pi#2 NAS Router
 - 3D Printer
 
 ### 🛒 Must Buy (~$125-165)
-- [ ] UGREEN 200W USB-C Hub: $100
-- [ ] USB-C to 12V trigger cable × 2: $20-30
-- [ ] Monoprice SlimRun Cat6 6" (6-pack): $15
-- [ ] USB-C cables 6-12" (4-pack): $15-20
-- [ ] Velcro strips + zip ties + cable clips: $20
+- [ ] [UGREEN 200W USB-C Hub](https://www.amazon.com/dp/B0C6DX66TN): $100
+- [ ] [USB-C to 12V trigger cable × 2](https://www.amazon.com/dp/B09WN3J6M7): $20-30
+- [ ] [Monoprice SlimRun Cat6 6" (6-pack)](https://www.amazon.com/dp/B003L18SHC): $15
+- [ ] [USB-C cables 6-12" (4-pack)](https://www.amazon.com/dp/B09LCJPZ1P): $15-20
+- [ ] [Velcro strips](https://www.amazon.com/dp/B00006RSP1) + [zip ties](https://www.amazon.com/dp/B07VRSQ6YL) + [cable clips](https://www.amazon.com/dp/B07VFZ5K5D): $20
 
 ### 🖨️ 3D Print
 - [ ] ASUS RT-AC1200G+ 1U bracket (10" × 8" × 1.75")
+  - [Search Thingiverse](https://www.thingiverse.com/search?q=10+inch+rack+router+mount) or [Printables](https://www.printables.com/search/models?q=router%20rack%20mount)
   - Ventilation holes, rear port access
   - Material: PLA/PETG (~50g)
 
