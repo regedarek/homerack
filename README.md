@@ -3,35 +3,35 @@
 Based on [geerlingguy/mini-rack#4](https://github.com/geerlingguy/mini-rack/issues/4)
 
 ## Rack
-- **DeskPi RackMate TT** - 10" mini rack
+- **[DeskPi RackMate TT](https://www.amazon.com/DeskPi-RackMate-Raspberry-Rack-Mount/dp/B0CTKWRMM5)** - 10" mini rack
 
 ## Current Hardware Inventory
 
 ### Compute Nodes
-1. **Pi 5 + NVMe HAT** (Web Server)
+1. **[Raspberry Pi 5](https://www.raspberrypi.com/products/raspberry-pi-5/) + [NVMe HAT](https://www.raspberrypi.com/products/m2-hat-plus/)** (Web Server)
    - Role: Web server
    - Storage: NVMe SSD
    - Power: USB-C
 
-2. **Pi 5 + NVMe HAT** (Home Server)
+2. **[Raspberry Pi 5](https://www.raspberrypi.com/products/raspberry-pi-5/) + [NVMe HAT](https://www.raspberrypi.com/products/m2-hat-plus/)** (Home Server)
    - Role: Home server
    - Storage: NVMe SSD
    - Power: USB-C
 
-3. **FriendlyElec CM3588 Plus NAS**
+3. **[FriendlyElec CM3588 Plus NAS](https://www.friendlyelec.com/index.php?route=product/product&product_id=294)**
    - Model: CM3588 NAS Kit
    - RAM: 16GB
    - eMMC: 64GB
    - Storage: 3x 1TB SSD
-   - MicroSD: SanDisk Ultra 32GB Class 10 UHS-I
+   - MicroSD: [SanDisk Ultra 32GB Class 10 UHS-I](https://www.amazon.com/SanDisk-Ultra-UHS-I-Memory-Adapter/dp/B00M55C0VU)
    - Power: 12V 4A Universal Adapter
 
 ### Networking
-- **T-Mobile 5G Home Office ODU** (FWA Antenna)
+- **[T-Mobile 5G Home Office ODU](https://www.t-mobile.com/business/solutions/5g-products/5g-home-office)** (FWA Antenna)
   - Primary internet connection
 
 ### Power
-- **Allpowers Volix P300**
+- **[Allpowers Volix P300](https://www.allpowers.com/products/allpowers-p300-portable-power-station)**
   - Capacity: 288Wh
   - Output: 300W
   - Type: Powerbank UPS
@@ -40,21 +40,21 @@ Based on [geerlingguy/mini-rack#4](https://github.com/geerlingguy/mini-rack/issu
 
 ### Network Switch
 - [ ] 10" rack-mountable switch (5-8 ports minimum)
-- Options: Mikrotik CSS610-8G-2S+in (~$110) or similar
+- Options: [Mikrotik CSS610-8G-2S+in](https://mikrotik.com/product/css610_8g_2s_in) (~$110) or similar
 
 ### Power Distribution
-- [ ] USB-C PD hub/charger for Pi 5s (65W per Pi recommended)
-- [ ] 10" rack PDU for AC outlets (Tupavco ~$45)
+- [ ] [USB-C PD hub/charger](https://www.amazon.com/Charger-GaN-Charging-Station-MacBook/dp/B0C6DX66TN) for Pi 5s (65W per Pi recommended)
+- [ ] 10" rack PDU for AC outlets ([Tupavco](https://www.amazon.com/Tupavco-TP1552-Rackmount-Power-Strip/dp/B00FUXYBCU) ~$45)
 - [ ] Short USB-C cables (6-12")
 
 ### Mounting Hardware
-- [ ] Pi mounting bracket (DeskPi 2U 4x Pi NVMe Mount ~$100 or custom)
+- [ ] Pi mounting bracket ([DeskPi 2U 4x Pi NVMe Mount](https://www.amazon.com/DeskPi-Raspberry-Rackmount-Bracket-Standard/dp/B0CQV99MPM) ~$100 or custom)
 - [ ] CM3588 mounting solution (check NAS kit compatibility)
-- [ ] Switch mounting brackets/rails
+- [ ] Switch mounting brackets/rails ([Mikrotik RMK-2/10](https://mikrotik.com/product/rmk_2_10) for Mikrotik)
 - [ ] Cable management clips
 
 ### Cables
-- [ ] Short Ethernet cables (6-12" for clean routing)
+- [ ] Short Ethernet cables ([Monoprice SlimRun 6"](https://www.amazon.com/Monoprice-SlimRun-Cat6A-Ethernet-Network/dp/B01BGV2T7S) for clean routing)
 - [ ] Power cables for UPS distribution
 
 ## Sizing Considerations
