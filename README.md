@@ -8,7 +8,6 @@
 - [Power Distribution](#power-distribution)
 - [Cable Specifications](#cable-specifications)
 - [Power Requirements](#power-requirements)
-- [Shopping Status](#shopping-status)
 - [Reference Links](#reference-links)
 
 ## Rack Hardware
