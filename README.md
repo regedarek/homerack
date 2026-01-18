@@ -84,7 +84,7 @@
 |------|-------|----------|------|
 | **Allpowers P300 UPS** | 288Wh, 300W output | External | [Official](https://www.allpowers.com/products/allpowers-s300-portable-power-station) or [Amazon](https://www.amazon.com/dp/B09NNVQZTF) |
 | **UGREEN 200W Hub** | 4×USB-C + 2×USB-A | Inside (rear mount) | [Amazon B0C6DX66TN](https://www.amazon.com/dp/B0C6DX66TN) |
-| **USB-C PD Trigger × 2** | 12V for NAS + Router | Inside | [Amazon 12V Trigger](https://www.amazon.com/dp/B09WN3J6M7) |
+| **USB-C PD Trigger × 2** | 12V for NAS + Router | Inside | [Amazon 12V Trigger Search](https://www.amazon.com/s?k=usb+c+pd+trigger+cable+12v) |
 
 ### Network Infrastructure
 
@@ -100,7 +100,7 @@
 | Cat6 patch | 6-12" | 3 | Router → Devices | [Monoprice 6" 6-pack](https://www.amazon.com/dp/B003L18SHC) |
 | Cat6 patch | 3-6ft | 1 | PoE → Router WAN | [Monoprice 6ft](https://www.amazon.com/dp/B003L18SIU) |
 | USB-C | 6-12" | 4 | Hub → Devices | [Anker 4-pack](https://www.amazon.com/dp/B09LCJPZ1P) |
-| USB-C 12V trigger | 6-12" | 2 | NAS + Router power | [12V Trigger Cable](https://www.amazon.com/dp/B09WN3J6M7) |
+| USB-C 12V trigger | 6-12" | 2 | NAS + Router power | [12V Trigger Cable Search](https://www.amazon.com/s?k=usb+c+pd+trigger+cable+12v) |
 | AC power | Included | 2 | Wall → UPS, UPS → Hub | Included with devices |
 
 ## 4. Network Diagram
@@ -180,7 +180,7 @@ Pi5#1 Pi5#2 CM3588 NAS
 
 ### 🛒 Must Buy (~$150-190)
 - [ ] [UGREEN 200W USB-C Hub](https://www.amazon.com/dp/B0C6DX66TN): **$100**
-- [ ] [USB-C to 12V trigger cable × 2](https://www.amazon.com/dp/B09WN3J6M7): **$20-30**
+- [ ] [USB-C to 12V trigger cable × 2](https://www.amazon.com/s?k=usb+c+pd+trigger+cable+12v): **$20-30**
 - [ ] [Monoprice SlimRun Cat6 6" (6-pack)](https://www.amazon.com/dp/B003L18SHC): **$15**
 - [ ] [USB-C cables 6-12" (4-pack)](https://www.amazon.com/dp/B09LCJPZ1P): **$15-20**
 - [ ] [Velcro strips](https://www.amazon.com/dp/B00006RSP1) + [zip ties](https://www.amazon.com/dp/B07VRSQ6YL) + [cable clips](https://www.amazon.com/dp/B07VFZ5K5D): **$20**
