@@ -103,26 +103,6 @@ Wall → UPS (300W) → UGREEN 200W Hub
 | CM3588 | 12V | 4A | 48W | DC 5.5×2.1mm |
 | Router | 12V | 2A | 24W | DC 5.5×2.1mm |
 
-## Shopping Status
-
-### ✅ Owned
-- GeeekPi 1U Shelf × 2
-- ASUS RT-AC1200G+ Router
-- T-Mobile PoE Injector + 5G Antenna
-- Allpowers P300 UPS
-- Cat6 cable 1m (PoE → Router)
-- USB-C to USB-C cables 0.3m × 2 (Hub → Pi5s)
-
-### ✅ Purchased (Order #404-0578284-5036360)
-- UGREEN 200W Charger (B09PFNP7WY) - 71.98 zł
-- Cable Matters Cat6 5-pack (0.3m)
-- PNGKNYOCN USB-C PD 12V Trigger 4-pack (5.5×2.1mm)
-
-### 🛒 Need
-- [ ] Router bracket (3D print)
-
-**Estimated:** $15-25
-
 ---
 
 ## Reference Links
@@ -137,12 +117,17 @@ Wall → UPS (300W) → UGREEN 200W Hub
 - [Allpowers P300 UPS](https://www.amazon.com/dp/B09NNVQZTF)
 - [UGREEN 200W Charger](https://www.amazon.pl/dp/B09PFNP7WY)
 
-### Cables
-- [PNGKNYOCN USB-C PD Trigger (5.5×2.1mm)](https://www.amazon.pl/dp/B0CKNW7QMJ)
-- [Cable Matters Cat6 Short Cables](https://www.amazon.com/s?k=cat6+ethernet+cable+6+inch)
-- [USB-C to USB-C Cables](https://www.amazon.com/s?k=usb+c+cable+6+inch)
+### Cables & Accessories
+- [PNGKNYOCN USB-C PD Trigger 12V (5.5×2.1mm) 4-pack](https://www.amazon.pl/dp/B0CKNW7QMJ)
+- [Cable Matters Cat6 Ethernet 5-pack (0.3m)](https://www.amazon.com/s?k=cable+matters+cat6+short)
+- [Cat6 Ethernet Cable (1m)](https://www.amazon.com/s?k=cat6+ethernet+cable+1m)
+- [USB-C to USB-C Cables (0.3m)](https://www.amazon.com/s?k=usb+c+cable+short)
 
-### 3D Printing
-- [Router Mount STL Files](https://www.thingiverse.com/search?q=10+inch+rack+router+mount)
-- [Shapeways](https://www.shapeways.com/)
-- [PCBWay](https://www.pcbway.com/rapid-prototyping/3d-printing/)
+### 3D Printing (Router Bracket)
+- [10" Rack Router Mount STL Files](https://www.thingiverse.com/search?q=10+inch+rack+router+mount)
+- [Shapeways 3D Printing Service](https://www.shapeways.com/)
+- [PCBWay 3D Printing Service](https://www.pcbway.com/rapid-prototyping/3d-printing/)
+
+### Network
+- [T-Mobile 5G Home Internet Gateway (FWA-ED309B)](https://www.t-mobile.com/support/devices/t-mobile-5g-home-internet-gateway)
+- [PoE Injector 802.3at](https://www.amazon.com/s?k=poe+injector+802.3at)
