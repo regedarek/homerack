@@ -105,11 +105,11 @@
 
 | Type | Length | Qty | Purpose | Link |
 |------|--------|-----|---------|------|
-| Cat6 patch | 6-12" | 3 | Router → Devices | [Monoprice 6" 6-pack](https://www.amazon.com/dp/B003L18SHC) |
-| Cat6 patch | 3-6ft | 1 | PoE → Router WAN | [Monoprice 6ft](https://www.amazon.com/dp/B003L18SIU) |
-| USB-C | 6-12" | 4 | Hub → Devices | [Anker 4-pack](https://www.amazon.com/dp/B09LCJPZ1P) |
-| USB-C 12V trigger | 6-12" | 2 | NAS + Router power | [12V Trigger Cable Search](https://www.amazon.com/s?k=usb+c+pd+trigger+cable+12v) |
-| AC power | Included | 2 | Wall → UPS, UPS → Hub | Included with devices |
+| Cat6 Ethernet | 6" | 3 | Router → Pi5s + NAS (short patch cables) | [Amazon Cat6 6" 6-pack](https://www.amazon.com/s?k=cat6+ethernet+cable+6+inch) |
+| Cat6 Ethernet | 3-6ft | 1 | PoE Injector → Router WAN | [Amazon Cat6 3ft](https://www.amazon.com/s?k=cat6+ethernet+cable+3+feet) |
+| USB-C to USB-C | 6-12" | 2 | USB Hub → Pi5 #1 + Pi5 #2 (power) | [Anker Short USB-C](https://www.amazon.com/s?k=usb+c+cable+6+inch) |
+| USB-C PD Trigger | 6-12" | 2 | USB Hub → NAS + Router (12V power) | [12V Trigger Search](https://www.amazon.com/s?k=usb+c+pd+trigger+cable+12v) |
+| AC Power Cable | 6ft | 2 | Wall → UPS, UPS → USB Hub | Included with UPS and Hub |
 
 ## 4. Network Diagram
 
@@ -188,9 +188,10 @@ Pi5#1 Pi5#2 CM3588 NAS
 
 ### 🛒 Must Buy (~$150-190)
 - [ ] [UGREEN 200W USB-C Hub](#power-infrastructure) → [Shop](https://www.amazon.com/dp/B0C6DX66TN): **$100**
-- [ ] [USB-C to 12V trigger cable × 2](#power-infrastructure) → [Shop](https://www.amazon.com/s?k=usb+c+pd+trigger+cable+12v): **$20-30**
-- [ ] [Monoprice SlimRun Cat6 6" (6-pack)](#cables) → [Shop](https://www.amazon.com/dp/B003L18SHC): **$15**
-- [ ] [USB-C cables 6-12" (4-pack)](#cables) → [Shop](https://www.amazon.com/dp/B09LCJPZ1P): **$15-20**
-- [ ] [Velcro strips + zip ties + cable clips](#cables) → [Velcro](https://www.amazon.com/dp/B00006RSP1) | [Zip ties](https://www.amazon.com/dp/B07VRSQ6YL) | [Cable clips](https://www.amazon.com/s?k=adhesive+cable+clips): **$20**
-- [ ] [Router 1U bracket 3D print service](#mounting-hardware-inside-rack) → [Shapeways](https://www.shapeways.com/) | [PCBWay](https://www.pcbway.com/rapid-prototyping/3d-printing/) | [STL files](https://www.thingiverse.com/search?q=10+inch+rack+router+mount): **$25-45**
+- [ ] [USB-C PD 12V trigger cables × 2](#cables) → [Shop](https://www.amazon.com/s?k=usb+c+pd+trigger+cable+12v): **$20-30**
+- [ ] [Cat6 Ethernet 6" cables (6-pack)](#cables) → [Shop](https://www.amazon.com/s?k=cat6+ethernet+cable+6+inch): **$12-15**
+- [ ] [Cat6 Ethernet 3ft cable](#cables) → [Shop](https://www.amazon.com/s?k=cat6+ethernet+cable+3+feet): **$5-8**
+- [ ] [USB-C to USB-C short cables × 2](#cables) → [Shop](https://www.amazon.com/s?k=usb+c+cable+6+inch): **$10-15**
+- [ ] [Cable management kit](#cables) → [Velcro](https://www.amazon.com/dp/B00006RSP1) | [Zip ties](https://www.amazon.com/dp/B07VRSQ6YL) | [Cable clips](https://www.amazon.com/s?k=adhesive+cable+clips): **$15-20**
+- [ ] [Router 1U bracket 3D print](#mounting-hardware-inside-rack) → [Shapeways](https://www.shapeways.com/) | [PCBWay](https://www.pcbway.com/rapid-prototyping/3d-printing/) | [STL files](https://www.thingiverse.com/search?q=10+inch+rack+router+mount): **$25-45**
 
