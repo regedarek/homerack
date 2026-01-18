@@ -94,6 +94,10 @@
 | **UGREEN 200W Hub** | 4×USB-C + 2×USB-A | Inside (rear mount) | [Amazon B0C6DX66TN](https://www.amazon.com/dp/B0C6DX66TN) |
 | **USB-C PD Trigger × 2** | 12V for NAS + Router | Inside | [Amazon 12V Trigger Search](https://www.amazon.com/s?k=usb+c+pd+trigger+cable+12v) |
 
+**DC Barrel Connector Specifications:**
+- **CM3588 NAS**: 12V 4A → DC 5.5×2.1mm barrel (standard)
+- **ASUS RT-AC1200G+**: 12V 1-2A → DC 5.5×2.1mm barrel ✅ **Verified**
+
 ### Network Infrastructure
 
 | Item | Purpose | Location | Link |
@@ -108,7 +112,7 @@
 | Cat6 Ethernet | 6" | 3 | Router → Pi5s + NAS (short patch cables) | [Amazon Cat6 6" 6-pack](https://www.amazon.com/s?k=cat6+ethernet+cable+6+inch) |
 | Cat6 Ethernet | 3-6ft | 1 | PoE Injector → Router WAN | [Amazon Cat6 3ft](https://www.amazon.com/s?k=cat6+ethernet+cable+3+feet) |
 | USB-C to USB-C | 6-12" | 2 | USB Hub → Pi5 #1 + Pi5 #2 (power) | [Anker Short USB-C](https://www.amazon.com/s?k=usb+c+cable+6+inch) |
-| USB-C PD Trigger | 6-12" | 2 | USB Hub → NAS + Router (12V power) | [12V Trigger Search](https://www.amazon.com/s?k=usb+c+pd+trigger+cable+12v) |
+| USB-C PD Trigger 12V | 6-12" | 2 | USB Hub → NAS + Router (12V, DC 5.5×2.1mm) | [PNGKNYOCN 5.5×2.1mm 4-pack](https://www.amazon.pl/dp/B0CKNW7QMJ) or [KUOQIY](https://www.amazon.pl/dp/B0CGF7JDRC) |
 | AC Power Cable | 6ft | 2 | Wall → UPS, UPS → USB Hub | Included with UPS and Hub |
 
 ## 4. Network Diagram
@@ -173,10 +177,10 @@ Pi5#1 Pi5#2 CM3588 NAS
 - Pi5 #1: 27W (USB-C direct)
 - Pi5 #2: 27W (USB-C direct)
 - CM3588 NAS: 48W (12V 4A via trigger)
-- ASUS Router: 24W (12V 2A via trigger)
-- **Total:** 126W / 300W available (UPS capacity)
+- ASUS Router: 12-24W (12V 1-2A via trigger)
+- **Total:** ~114-126W / 300W available (UPS capacity)
 - **Hub Capacity:** 200W (sufficient for 126W draw)
-- **UPS Runtime:** 288Wh ÷ 126W = 2.3 hours
+- **UPS Runtime:** 288Wh ÷ 120W = ~2.4 hours
 
 ## 6. Shopping List
 
@@ -186,12 +190,21 @@ Pi5#1 Pi5#2 CM3588 NAS
 - T-Mobile PoE Injector + 5G Antenna
 - Allpowers P300 UPS
 
-### 🛒 Must Buy (~$150-190)
-- [ ] [UGREEN 200W USB-C Hub](#power-infrastructure) → [Shop](https://www.amazon.com/dp/B0C6DX66TN): **$100**
-- [ ] [USB-C PD 12V trigger cables × 2](#cables) → [Shop](https://www.amazon.com/s?k=usb+c+pd+trigger+cable+12v): **$20-30**
-- [ ] [Cat6 Ethernet 6" cables (6-pack)](#cables) → [Shop](https://www.amazon.com/s?k=cat6+ethernet+cable+6+inch): **$12-15**
-- [ ] [Cat6 Ethernet 3ft cable](#cables) → [Shop](https://www.amazon.com/s?k=cat6+ethernet+cable+3+feet): **$5-8**
-- [ ] [USB-C to USB-C short cables × 2](#cables) → [Shop](https://www.amazon.com/s?k=usb+c+cable+6+inch): **$10-15**
-- [ ] [Cable management kit](#cables) → [Velcro](https://www.amazon.com/dp/B00006RSP1) | [Zip ties](https://www.amazon.com/dp/B07VRSQ6YL) | [Cable clips](https://www.amazon.com/s?k=adhesive+cable+clips): **$15-20**
-- [ ] [Router 1U bracket 3D print](#mounting-hardware-inside-rack) → [Shapeways](https://www.shapeways.com/) | [PCBWay](https://www.pcbway.com/rapid-prototyping/3d-printing/) | [STL files](https://www.thingiverse.com/search?q=10+inch+rack+router+mount): **$25-45**
+### ✅ Recently Purchased (Jan 18, 2026 - Order #404-0578284-5036360)
+- [x] **UGREEN 200W USB-C Charger** (100W + 100W, 6 ports) → **71.98 zł** ✅
+  - Model: UGREEN 200W Ładowarka USB C GaN II PPS
+  - Ports: 4×USB-C + 2×USB-A
+  - ⚠️ **Note**: Price significantly lower than US version - verify specs match 200W total output
+- [x] **Cable Matters Cat6 Ethernet 5-pack** (0.3m/12") → **Included in order** ✅
+  - 10 Gb/s short cables, black
+  - Perfect for internal rack connections (Pi5s, NAS, Router)
+- [x] **PNGKNYOCN USB-C PD 12V Trigger 4-pack** (5.5×2.1mm, 90°) → **Included in order** ✅
+  - For CM3588 NAS (12V 4A) + ASUS Router (12V 2A)
+  - ✅ **Both devices use 5.5×2.1mm barrel** - 2 spares remaining
+
+### 🛒 Still Need to Buy (~$30-60)
+- [ ] **Cat6 Ethernet 3ft cable** (PoE Injector → Router WAN) → [Shop](https://www.amazon.com/s?k=cat6+ethernet+cable+3+feet): **$5-8**
+- [ ] **USB-C to USB-C short cables × 2** (Hub → Pi5 power) → [Shop](https://www.amazon.com/s?k=usb+c+cable+6+inch): **$10-15**
+- [ ] **Cable management kit** → [Velcro](https://www.amazon.com/dp/B00006RSP1) | [Zip ties](https://www.amazon.com/dp/B07VRSQ6YL) | [Cable clips](https://www.amazon.com/s?k=adhesive+cable+clips): **$15-20**
+- [ ] **Router 1U bracket 3D print** → [Shapeways](https://www.shapeways.com/) | [PCBWay](https://www.pcbway.com/rapid-prototyping/3d-printing/) | [STL files](https://www.thingiverse.com/search?q=10+inch+rack+router+mount): **$25-45**
 
