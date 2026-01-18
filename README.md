@@ -69,34 +69,60 @@ Power everything from a single high-wattage USB-C PD hub connected to UPS.
 
 ### Network & Connectivity
 
-**Selected: MikroTik hAP ac²** (~$60)
-- 5-port Gigabit switch (enough for 2 Pis + NAS + WAN + spare)
-- Dual-band WiFi: 2.4GHz (300Mbps) + 5GHz (867Mbps)
-- **WiFi Range:** ~30-50ft indoors (typical for internal antennas)
-  - Good for apartment/small home
-  - Limited range - router inside metal rack may reduce signal
-  - Consider external placement if WiFi coverage needed
-- PoE output: 24V passive PoE on port 5 (max 2A / 48W)
+**⚠️ IMPORTANT: T-Mobile Antenna is PoE-Only Powered**
+- Your antenna: **FWA-ED309B** (Vistron NeWeb) - **Ethernet connector ONLY**
+- **Power:** 802.3at PoE+ (standard, ~25.5W) via Ethernet
+- Currently using T-Mobile's PoE injector/router (want to replace)
 
-**⚠️ T-Mobile 5G Antenna Compatibility Issue:**
-- Your antenna: **FWA-ED309B** (Vistron NeWeb)
-- **Power requirement:** Likely 802.3at PoE+ (25.5W) or proprietary
-- **MikroTik hAP ac²:** Only supports 24V passive PoE (incompatible with 802.3af/at)
+**Port Requirements:**
+- 5G antenna (PoE, WAN/internet source)
+- 2x Raspberry Pi 5
+- 1x CM3588 NAS
+- **Total: 1 PoE WAN + 3 LAN ports minimum**
 
-**Solutions:**
-1. **Use included T-Mobile power adapter** (recommended)
-   - Keep antenna on separate power
-   - No PoE needed
-2. **Add 802.3at PoE injector** (~$25)
-   - [TP-Link TL-PoE160S](https://www.amazon.com/TP-Link-Injector-Gigabit-Adapter-TL-PoE160S/dp/B003CFATQK) (802.3at, 30W)
-   - Between hAP ac² and antenna
-3. **Upgrade router** to one with 802.3af/at PoE
-   - More expensive, not recommended
+**Router Options:**
 
-**Decision: Use T-Mobile's included power adapter for antenna**
-- Simpler and reliable
-- No compatibility issues
-- Antenna stays on UPS via USB-C hub or direct AC
+**Option A: UniFi Dream Router 7 (UDR7)** (~$279) ✅ RECOMMENDED
+- [UniFi Dream Router 7](https://store.ui.com/us/en/products/udr7) ~$279
+  - **4x 2.5GbE ports:** Multi-gig for all devices
+  - **1x 802.3af PoE port (15.4W)** - powers your antenna natively!
+  - **WiFi 7** integrated (better range/speed than WiFi 5/6)
+  - Coverage: ~1,750 sq ft
+  - 10G SFP+ WAN port (future-proof)
+  - **No separate PoE injector needed!**
+  - UniFi management (cloud or local)
+
+**Option B: MikroTik hAP ac² + PoE Injector** (~$85 total)
+- Router: [MikroTik hAP ac²](https://mikrotik.com/product/hap_ac2) ~$60
+  - **5-port Gigabit:** 1 WAN + 4 LAN (plenty for your needs)
+  - Dual-band WiFi: 2.4GHz (300Mbps) + 5GHz (867Mbps)
+  - **WiFi Range:** ~30-50ft indoors (mount outside rack)
+  - **Issue:** Only 24V passive PoE (incompatible with antenna)
+- **Required:** [TP-Link TL-PoE160S](https://www.amazon.com/TP-Link-Injector-Gigabit-Adapter-TL-PoE160S/dp/B003CFATQK) 802.3at injector ~$25
+  - Place between hAP ac² WAN port and antenna
+  - Small, can mount behind rack
+
+**Option C: Keep T-Mobile PoE Injector + Basic Router** (~$60)
+- Use existing T-Mobile PoE adapter
+- Any WiFi router with 4+ LAN ports
+- [TP-Link AX3000](https://www.amazon.com/TP-Link-WiFi-6-Router/dp/B09G5W8C8R) ~$60
+- Simpler but keeps extra power brick
+
+**Option D: Minimal Budget - Keep Existing Setup** (~$25) 💰 CHEAPEST
+- **Keep your current T-Mobile router** (already have antenna + PoE)
+- Add small switch for mini rack devices
+- [TP-Link 5-Port Gigabit Switch](https://www.amazon.com/TP-Link-TL-SG105-Gigabit-Ethernet-Optimization/dp/B00A128S24) ~$15
+- OR [Netgear GS305](https://www.amazon.com/NETGEAR-5-Port-Gigabit-Ethernet-Unmanaged/dp/B07S98YLHM) ~$20
+- Run single Ethernet from T-Mobile router to switch in rack
+- **Perfect starter setup** - upgrade router later when budget allows
+- WiFi stays on existing router (separate from rack)
+
+**Recommendation: Start with Option D, upgrade to Option A later**
+- Native 802.3af PoE output - clean single-cable solution
+- WiFi 7 + 2.5GbE ports future-proof the build
+- Premium UniFi ecosystem (expandable)
+- Worth $194 premium for integrated solution
+- **Budget option:** Option B saves $194 but adds PoE injector
 
 ### Power Distribution
 - [ ] High-wattage USB-C PD hub (150W+ total, 4-6 ports)
@@ -141,21 +167,29 @@ Power everything from a single high-wattage USB-C PD hub connected to UPS.
 3. 5G Antenna (via PoE from router)
 4. Router WiFi for wireless devices
 
-**Total wired ports needed: 3** (2 Pis + NAS)
+**Total wired ports needed: 3** (2 Pis + NAS) + 1 uplink to router
 
-**Recommended Setup:**
-- MikroTik hAP ac² as main router
-- Built-in 5-port switch (enough for 2 Pis + NAS + WAN + 1 spare)
-- PoE output port for 5G antenna
-- WiFi AP included
-- Compact, can mount behind rack
+**Phase 1: Minimal Budget Setup (Option D):**
+- Keep T-Mobile router where it is (antenna + WiFi)
+- Run single Ethernet from router to mini rack
+- 5-port Gigabit switch in rack
+  - Port 1: Uplink to T-Mobile router
+  - Port 2-4: Pi 5 #1, Pi 5 #2, CM3588 NAS
+  - Port 5: Spare
+- **Total cost: ~$15-25 for switch only**
+- Upgrade router later when budget allows
 
-**WiFi Coverage Considerations:**
-- hAP ac² inside metal rack will reduce WiFi range
-- Options if WiFi coverage insufficient:
-  1. Mount router outside rack (on desk/wall)
-  2. Add separate WiFi AP later
-  3. Use mesh system for whole-home coverage
+**Phase 2: Premium Setup (Dream Router 7):**
+- Dream Router 7 PoE port → 5G antenna (internet source, powered via PoE)
+- Dream Router 7 LAN ports: Pi 5 #1, Pi 5 #2, CM3588 NAS (2.5GbE each!)
+- WiFi 7 included for wireless devices (~1,750 sq ft coverage)
+- Mount router outside/beside rack for optimal WiFi coverage
+- No separate PoE injector needed
+
+**Alternative (hAP ac² + PoE Injector) - Budget:**
+- hAP ac² WAN port → PoE injector → 5G antenna
+- hAP ac² LAN ports: Pi 5 #1, Pi 5 #2, CM3588 NAS (+ 1 spare)
+- Saves $194 but adds extra device
 
 ## Mounting Strategy
 
@@ -181,28 +215,55 @@ Power everything from a single high-wattage USB-C PD hub connected to UPS.
 - UPS: ~$200
 
 ### To Buy
-- WiFi router with PoE: $60-200 (or router + PoE injector ~$75)
+
+**Option D - Minimal Budget (Start Here):**
+- 5-port Gigabit switch: $15-25
 - Mounting hardware: $100-150
 - USB-C PD hub (150W+): $100-120
 - Cables + adapters: $40-60
-- **Additional spend: ~$300-530**
+- **Additional spend: ~$255-355**
+- **Total project: ~$1,025-1,355**
 
-**Total project: ~$1,070-1,530**
+**Option B - Mid Budget:**
+- WiFi router: $85 (hAP ac² + PoE injector)
+- Mounting hardware: $100-150
+- USB-C PD hub (150W+): $100-120
+- Cables + adapters: $40-60
+- **Additional spend: ~$325-415**
+- **Total project: ~$1,095-1,415**
+
+**Option A - Premium:**
+- WiFi router: $279 (Dream Router 7)
+- Mounting hardware: $100-150
+- USB-C PD hub (150W+): $100-120
+- Cables + adapters: $40-60
+- **Additional spend: ~$519-609**
+- **Total project: ~$1,289-1,609**
 
 ## Next Steps
-1. ✅ Router decision: MikroTik hAP ac² confirmed
-2. ✅ Antenna power: Use T-Mobile's included adapter (not PoE)
+
+**Minimal Budget Path (Recommended Start):**
+1. ✅ Keep existing T-Mobile router + antenna
+2. Order 5-port Gigabit switch (~$15-25)
 3. Verify CM3588 NAS supports USB-C PD 12V or get USB-C to barrel adapter
-4. Test hAP ac² WiFi range from rack location (may need external placement)
-5. Measure CM3588 NAS kit dimensions for mounting
-6. Choose USB-C PD hub (150W+ with 4-6 ports)
-7. Order mounting brackets/hardware
+3. Confirm T-Mobile antenna PoE requirement is 802.3af (15.4W max)
+4. Measure CM3588 NAS kit dimensions for mounting
+5. Choose USB-C PD hub (150W+ with 4-6 ports) - UGREEN 200W recommended
+6. Order switch, mounting brackets, cables
+7. Run single Ethernet from T-Mobile router to mini rack
 8. Plan cable management strategy
+
+**Future Upgrade (When Budget Allows):**
+- Replace T-Mobile router with Dream Router 7 or hAP ac²
+- Integrate antenna with new router (PoE)
+- Replace/remove switch (router has enough ports)
 
 ## Notes
 - Verify Pi 5 NVMe HAT compatibility with mounting bracket
 - Check if CM3588 NAS kit includes rack ears
 - Consider active cooling if stacking tightly
 - Test UPS runtime under actual load before production use
-- **T-Mobile antenna:** Model FWA-ED309B by Vistron NeWeb
-- hAP ac² WiFi may have limited range inside metal rack - test before permanent mounting
+- **T-Mobile antenna:** FWA-ED309B (Vistron NeWeb) - PoE-only powered, requires 802.3af/at
+- Router should be mounted outside/beside rack for optimal WiFi coverage
+- Dream Router 7 has 802.3af PoE (15.4W) - verify antenna requirement ≤15.4W
+- If antenna needs >15.4W (802.3at/25.5W), use hAP ac² + 802.3at injector instead
