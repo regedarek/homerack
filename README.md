@@ -29,6 +29,12 @@ Based on [geerlingguy/mini-rack#4](https://github.com/geerlingguy/mini-rack/issu
 ### Networking
 - **[T-Mobile 5G Home Office ODU](https://www.t-mobile.com/business/solutions/5g-products/5g-home-office)** (FWA Antenna)
   - Primary internet connection
+- **[ASUS RT-AC1200G+](https://www.asus.com/networking/rt-ac1200g-plus/)** Wireless-AC1200 Dual-band Gigabit Router
+  - Model: RT-AC1200G+
+  - LAN: 4x Gigabit ports
+  - WAN: 1x Gigabit port
+  - WiFi: AC1200 (2.4GHz 300Mbps + 5GHz 867Mbps)
+  - Power: 12V 2A (24W)
 
 ### Power
 - **[Allpowers Volix P300](https://www.allpowers.com/products/allpowers-p300-portable-power-station)**
@@ -117,7 +123,22 @@ Power everything from a single high-wattage USB-C PD hub connected to UPS.
 - **Perfect starter setup** - upgrade router later when budget allows
 - WiFi stays on existing router (separate from rack)
 
-**Recommendation: Start with Option D, upgrade to Option A later**
+**Option E: ASUS RT-AC1200G+ (You Already Own This!)** (~$0) ✅ FREE UPGRADE
+- **Use your ASUS RT-AC1200G+ router** with T-Mobile PoE injector
+- Setup:
+  - T-Mobile PoE injector → 5G antenna (internet source)
+  - PoE injector data out → ASUS WAN port
+  - ASUS LAN ports: Pi 5 #1, Pi 5 #2, CM3588 NAS (+ 1 spare port)
+- **Benefits:**
+  - Better WiFi than T-Mobile router (AC1200 vs basic router)
+  - Gigabit ports for all devices
+  - More configuration options (QoS, DDNS, VPN, etc.)
+  - Can use USB-C PD trigger cable for 12V power (cleaner cable management)
+- **Mounting:** Place behind/beside rack for optimal WiFi coverage (not rack-mountable)
+- **Power:** 12V 2A (24W) - use USB-C PD 12V trigger cable from hub
+- **No switch needed** - router has 4 LAN ports (perfect for your 3 devices)
+
+**Recommendation: Start with Option E (free!), upgrade to Option A later if you need 2.5GbE/WiFi 7**
 - Native 802.3af PoE output - clean single-cable solution
 - WiFi 7 + 2.5GbE ports future-proof the build
 - Premium UniFi ecosystem (expandable)
@@ -169,7 +190,15 @@ Power everything from a single high-wattage USB-C PD hub connected to UPS.
 
 **Total wired ports needed: 3** (2 Pis + NAS) + 1 uplink to router
 
-**Phase 1: Minimal Budget Setup (Option D):**
+**Phase 1: Use ASUS RT-AC1200G+ (Option E - RECOMMENDED START):**
+- Connect T-Mobile PoE injector → 5G antenna → ASUS WAN port
+- ASUS LAN ports → Pi 5 #1, Pi 5 #2, CM3588 NAS (direct connections)
+- Mount ASUS behind/beside rack for WiFi coverage
+- Power ASUS with USB-C PD 12V trigger cable from hub
+- **Total cost: $0 (you own everything)**
+- No switch needed!
+
+**Phase 1 Alternative: Minimal Budget (Option D):**
 - Keep T-Mobile router where it is (antenna + WiFi)
 - Run single Ethernet from router to mini rack
 - 5-port Gigabit switch in rack
@@ -216,7 +245,16 @@ Power everything from a single high-wattage USB-C PD hub connected to UPS.
 
 ### To Buy
 
-**Option D - Minimal Budget (Start Here):**
+**Option E - ASUS RT-AC1200G+ (Start Here - You Own It!):** ✅ RECOMMENDED
+- USB-C PD 12V trigger cable for ASUS: $10-15
+- Mounting hardware: $100-150
+- USB-C PD hub (150W+): $100-120
+- Cables + adapters: $30-50
+- **Additional spend: ~$240-335**
+- **Total project: ~$1,010-1,335**
+- **Saves $15-20 vs Option D (no switch needed!)**
+
+**Option D - Minimal Budget:**
 - 5-port Gigabit switch: $15-25
 - Mounting hardware: $100-150
 - USB-C PD hub (150W+): $100-120
@@ -242,21 +280,27 @@ Power everything from a single high-wattage USB-C PD hub connected to UPS.
 
 ## Next Steps
 
-**Minimal Budget Path (Recommended Start):**
-1. ✅ Keep existing T-Mobile router + antenna
+**Recommended Path - Using ASUS RT-AC1200G+:** ✅ START HERE
+1. ✅ Use your ASUS RT-AC1200G+ router (already owned!)
+2. Keep T-Mobile PoE injector for antenna
+3. Order USB-C PD 12V trigger cable for ASUS (~$10-15)
+4. Verify CM3588 NAS supports USB-C PD 12V or get USB-C to barrel adapter
+5. Confirm T-Mobile antenna PoE requirement is 802.3af (15.4W max)
+6. Measure CM3588 NAS kit dimensions for mounting
+7. Choose USB-C PD hub (150W+ with 4-6 ports) - UGREEN 200W recommended
+8. Order mounting brackets, cables
+9. Connect: T-Mobile PoE injector → Antenna → ASUS WAN port → LAN ports to devices
+10. Mount ASUS behind/beside rack for WiFi coverage
+11. Plan cable management strategy
+
+**Alternative: Minimal Budget Path (If Not Using ASUS):**
+1. Keep existing T-Mobile router + antenna
 2. Order 5-port Gigabit switch (~$15-25)
-3. Verify CM3588 NAS supports USB-C PD 12V or get USB-C to barrel adapter
-3. Confirm T-Mobile antenna PoE requirement is 802.3af (15.4W max)
-4. Measure CM3588 NAS kit dimensions for mounting
-5. Choose USB-C PD hub (150W+ with 4-6 ports) - UGREEN 200W recommended
-6. Order switch, mounting brackets, cables
-7. Run single Ethernet from T-Mobile router to mini rack
-8. Plan cable management strategy
+3. Run single Ethernet from T-Mobile router to switch in rack
 
 **Future Upgrade (When Budget Allows):**
-- Replace T-Mobile router with Dream Router 7 or hAP ac²
-- Integrate antenna with new router (PoE)
-- Replace/remove switch (router has enough ports)
+- Replace ASUS + PoE injector with Dream Router 7 (integrated PoE + WiFi 7)
+- OR keep ASUS and add Dream Router 7 as access point for WiFi 7 coverage
 
 ## Notes
 - Verify Pi 5 NVMe HAT compatibility with mounting bracket
@@ -264,6 +308,8 @@ Power everything from a single high-wattage USB-C PD hub connected to UPS.
 - Consider active cooling if stacking tightly
 - Test UPS runtime under actual load before production use
 - **T-Mobile antenna:** FWA-ED309B (Vistron NeWeb) - PoE-only powered, requires 802.3af/at
-- Router should be mounted outside/beside rack for optimal WiFi coverage
+- **ASUS RT-AC1200G+:** Not rack-mountable (desktop form factor) - mount behind/beside rack for WiFi coverage
+- ASUS can be powered via USB-C PD 12V trigger cable for cleaner cable management
 - Dream Router 7 has 802.3af PoE (15.4W) - verify antenna requirement ≤15.4W
 - If antenna needs >15.4W (802.3at/25.5W), use hAP ac² + 802.3at injector instead
+- **USB-C PD 12V trigger cables:** [Amazon search](https://www.amazon.com/s?k=usb+c+pd+12v+trigger+cable) ~$10-15
