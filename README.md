@@ -302,14 +302,135 @@ Power everything from a single high-wattage USB-C PD hub connected to UPS.
 - Replace ASUS + PoE injector with Dream Router 7 (integrated PoE + WiFi 7)
 - OR keep ASUS and add Dream Router 7 as access point for WiFi 7 coverage
 
+## Detailed Dimensional Analysis
+
+### Rack Space Available (DeskPi RackMate TT)
+- **Total:** 3U = 5.25" height
+- **Width:** 10" (254mm) internal
+- **Depth:** 8" (203mm) usable
+
+### Component Dimensions (Verified)
+
+**Bottom Layer - 1U (1.75"):**
+- 2x Raspberry Pi 5 + NVMe HAT
+- Each: 3.4" × 3.5" × 1" tall
+- Side-by-side: 7" × 3.5" × 1" (fits in 10" width ✓)
+- Mounted on: GeeekPi 1U shelf
+
+**Middle Layer - 1U (1.75"):**
+- CM3588 NAS Kit
+- Estimate: 7" × 5" × 1.5-2" tall
+- ⚠️ **Need to verify actual height!**
+- Mounted on: GeeekPi 1U shelf
+
+**Top Layer - 1U (1.75"):**
+- ASUS RT-AC1200G+
+- Size: 7.5" × 5" × 1.5" tall
+- Fits with 3D printed bracket ✓
+
+**USB-C PD Hub (fits under/behind shelf):**
+- See comparison below
+- Mount location: Under NAS shelf or on side rail
+
+**T-Mobile PoE Injector:**
+- Size: ~4" × 2.5" × 1.5"
+- **Could fit on side/back of rack frame!**
+- Alternative: Keep external
+
+**UPS (Too Large - Must Stay External):**
+- Allpowers P300: 9" × 5" × 8"
+- Location: Under/beside rack
+
+### Can Everything Fit Inside? 
+**YES! With careful mounting:**
+- 3U for devices (all fit ✓)
+- Hub mounts under shelf or on side rail ✓
+- PoE injector could mount on rear frame ✓
+- Only UPS must stay external ✓
+
+## USB-C PD Hub Comparison (Most Compact Options)
+
+### Option 1: Anker 735 GaNPrime 65W (MOST COMPACT) ✅ RECOMMENDED
+- **Size:** 4" × 3" × 1" (102mm × 76mm × 25mm)
+- **Ports:** 3x USB-C (2×65W, 1×30W)
+- **Total:** 65W max
+- **Price:** ~$50
+- **Pros:** Smallest footprint, perfect for tight spaces
+- **Cons:** Need 2 units for full power (130W), or accept reduced power
+- **Mount:** Velcro under shelf or side wall
+- **Link:** [Amazon](https://www.amazon.com/Anker-Charger-GaNPrime-Compact-Foldable/dp/B0B2MH6Y94)
+
+### Option 2: UGREEN 100W 4-Port (COMPACT + ADEQUATE)
+- **Size:** 4.1" × 2.8" × 1.1" (105mm × 72mm × 28mm)
+- **Ports:** 2x USB-C (100W, 30W) + 2x USB-A
+- **Total:** 100W shared
+- **Price:** ~$60
+- **Pros:** Good balance size/power, single unit
+- **Cons:** May need to reduce device power slightly
+- **Mount:** Velcro under shelf
+- **Link:** [Amazon](https://www.amazon.com/UGREEN-Charger-Compact-MacBook-Laptop/dp/B0C6F8DY47)
+
+### Option 3: Satechi 165W 4-Port GaN (POWERFUL BUT LARGER)
+- **Size:** 4.3" × 3.5" × 1.3" (110mm × 89mm × 33mm)
+- **Ports:** 4x USB-C
+- **Total:** 165W shared
+- **Price:** ~$120
+- **Pros:** Plenty of power for all devices
+- **Cons:** Larger footprint, higher cost
+- **Mount:** Fits under shelf (barely)
+- **Link:** [Amazon](https://www.amazon.com/Satechi-Charger-Desktop-MacBook-Samsung/dp/B09FT7MJC3)
+
+### Option 4: UGREEN 200W 6-Port (MAXIMUM POWER)
+- **Size:** 4.5" × 3" × 1.3" (115mm × 75mm × 33mm)
+- **Ports:** 4x USB-C + 2x USB-A
+- **Total:** 200W shared
+- **Price:** ~$100
+- **Pros:** Most power, 6 ports (future expansion)
+- **Cons:** Larger, heavier
+- **Mount:** Under shelf or side rail
+- **Link:** [Amazon](https://www.amazon.com/UGREEN-Charger-Desktop-Charging-Station/dp/B0C6DX66TN)
+
+### Power Requirements Analysis
+```
+Device          | Required | With Margin
+----------------|----------|-------------
+Pi 5 #1         | 27W      | 30W
+Pi 5 #2         | 27W      | 30W
+CM3588 NAS      | 48W      | 50W
+ASUS Router     | 24W      | 25W
+----------------|----------|-------------
+TOTAL           | 126W     | 135W
+```
+
+### Recommendation by Priority:
+
+**Budget + Compact:** Anker 735 × 2 = $100, 130W total
+- Smallest size, mount one under each shelf
+- 130W total (slightly under requirement, but workable)
+
+**Best Balance:** UGREEN 100W = $60, single unit
+- Adequate power if devices don't peak simultaneously
+- Very compact, easiest mounting
+
+**No Compromise:** UGREEN 200W = $100, single unit
+- Plenty of power + expansion ports
+- Still fits under shelf or side mount
+
+**Recommended:** **UGREEN 100W ($60)** or **UGREEN 200W ($100)**
+- Both fit inside rack easily
+- 200W gives more headroom and future expansion
+- Single unit = cleaner than dual Anker setup
+
 ## Notes
 - Verify Pi 5 NVMe HAT compatibility with mounting bracket
 - Check if CM3588 NAS kit includes rack ears
+- **⚠️ CRITICAL:** Measure CM3588 NAS actual height (affects 2U fit)
 - Consider active cooling if stacking tightly
 - Test UPS runtime under actual load before production use
 - **T-Mobile antenna:** FWA-ED309B (Vistron NeWeb) - PoE-only powered, requires 802.3af/at
-- **ASUS RT-AC1200G+:** Not rack-mountable (desktop form factor) - mount behind/beside rack for WiFi coverage
+- **ASUS RT-AC1200G+:** 3D print 1U bracket for rack mounting
 - ASUS can be powered via USB-C PD 12V trigger cable for cleaner cable management
+- **USB-C PD 12V trigger cables:** [Amazon search](https://www.amazon.com/s?k=usb+c+pd+12v+trigger+cable) ~$10-15
+- **PoE Injector:** Consider mounting inside rack on rear frame (saves external clutter)
 - Dream Router 7 has 802.3af PoE (15.4W) - verify antenna requirement ≤15.4W
 - If antenna needs >15.4W (802.3at/25.5W), use hAP ac² + 802.3at injector instead
-- **USB-C PD 12V trigger cables:** [Amazon search](https://www.amazon.com/s?k=usb+c+pd+12v+trigger+cable) ~$10-15
