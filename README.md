@@ -1,5 +1,16 @@
 # THE RACK - Build Specs
 
+## Table of Contents
+- [Rack Hardware](#rack-hardware)
+- [Physical Layout](#physical-layout)
+- [Components](#components)
+- [Network Topology](#network-topology)
+- [Power Distribution](#power-distribution)
+- [Cable Specifications](#cable-specifications)
+- [Power Requirements](#power-requirements)
+- [Shopping Status](#shopping-status)
+- [Reference Links](#reference-links)
+
 ## Rack Hardware
 **DeskPi RackMate TT** - 10" Mini Rack
 - 3U = 5.25" (133mm) H × 10" (254mm) W × 8" (203mm) D
@@ -29,24 +40,24 @@ External:
 ## Components
 
 ### Computing
-| Device | Specs |
-|--------|-------|
-| Raspberry Pi 5 × 2 | 8GB + NVMe HAT |
-| CM3588 NAS | 3× SATA, 3× Ethernet |
-| ASUS RT-AC1200G+ | AC1200, 4× GbE LAN |
+| Device | Specs | Link |
+|--------|-------|------|
+| Raspberry Pi 5 × 2 | 8GB + NVMe HAT | [Official](https://www.raspberrypi.com/products/raspberry-pi-5/) |
+| CM3588 NAS | 3× SATA, 3× Ethernet | [FriendlyElec](https://www.friendlyelec.com/index.php?route=product/product&product_id=294) |
+| ASUS RT-AC1200G+ | AC1200, 4× GbE LAN | [ASUS](https://www.asus.com/networking-iot-servers/wifi-routers/asus-wifi-routers/rt-ac1200g-plus/) |
 
 ### Mounting
-| Item | Purpose |
-|------|---------|
-| GeeekPi 1U Shelf × 2 | Pi & NAS mount |
-| Router Bracket (3D print) | Router 1U mount |
+| Item | Purpose | Link |
+|------|---------|------|
+| GeeekPi 1U Shelf × 2 | Pi & NAS mount | [Amazon B0BPZ37MFS](https://www.amazon.com/dp/B0BPZ37MFS) |
+| Router Bracket (3D print) | Router 1U mount | [STL Files](https://www.thingiverse.com/search?q=10+inch+rack+router+mount) |
 
 ### Power
-| Device | Input | Output | Location |
-|--------|-------|--------|----------|
-| Allpowers P300 | AC 110-240V | 288Wh, 300W | External |
-| UGREEN 200W (Model 40914) | AC | 4× USB-C + 2× USB-A | Rear mount |
-| USB-C PD Trigger × 2 | USB-C PD | 12V DC 5.5×2.1mm | Inline |
+| Device | Input | Output | Location | Link |
+|--------|-------|--------|----------|------|
+| Allpowers P300 | AC 110-240V | 288Wh, 300W | External | [Amazon](https://www.amazon.com/dp/B09NNVQZTF) |
+| UGREEN 200W (Model 40914) | AC | 4× USB-C + 2× USB-A | Rear mount | [Amazon.pl B09PFNP7WY](https://www.amazon.pl/dp/B09PFNP7WY) |
+| USB-C PD Trigger × 2 | USB-C PD | 12V DC 5.5×2.1mm | Inline | [Amazon.pl](https://www.amazon.pl/dp/B0CKNW7QMJ) |
 
 ## Network Topology
 
@@ -99,6 +110,8 @@ Wall → UPS (300W) → UGREEN 200W Hub
 - ASUS RT-AC1200G+ Router
 - T-Mobile PoE Injector + 5G Antenna
 - Allpowers P300 UPS
+- Cat6 cable 1m (PoE → Router)
+- USB-C to USB-C cables 0.3m × 2 (Hub → Pi5s)
 
 ### ✅ Purchased (Order #404-0578284-5036360)
 - UGREEN 200W Charger (B09PFNP7WY) - 71.98 zł
@@ -106,9 +119,30 @@ Wall → UPS (300W) → UGREEN 200W Hub
 - PNGKNYOCN USB-C PD 12V Trigger 4-pack (5.5×2.1mm)
 
 ### 🛒 Need
-- [ ] Cat6 cable 1m × 1
-- [ ] USB-C to USB-C 0.3m × 2
 - [ ] Router bracket (3D print)
-- [ ] Cable management (velcro/zip ties)
 
-**Estimated:** $30-60
+**Estimated:** $15-25
+
+---
+
+## Reference Links
+
+### Components
+- [Raspberry Pi 5 8GB](https://www.raspberrypi.com/products/raspberry-pi-5/)
+- [CM3588 NAS](https://www.friendlyelec.com/index.php?route=product/product&product_id=294)
+- [ASUS RT-AC1200G+ Specs](https://www.asus.com/networking-iot-servers/wifi-routers/asus-wifi-routers/rt-ac1200g-plus/)
+
+### Hardware
+- [GeeekPi 1U Shelf](https://www.amazon.com/dp/B0BPZ37MFS)
+- [Allpowers P300 UPS](https://www.amazon.com/dp/B09NNVQZTF)
+- [UGREEN 200W Charger](https://www.amazon.pl/dp/B09PFNP7WY)
+
+### Cables
+- [PNGKNYOCN USB-C PD Trigger (5.5×2.1mm)](https://www.amazon.pl/dp/B0CKNW7QMJ)
+- [Cable Matters Cat6 Short Cables](https://www.amazon.com/s?k=cat6+ethernet+cable+6+inch)
+- [USB-C to USB-C Cables](https://www.amazon.com/s?k=usb+c+cable+6+inch)
+
+### 3D Printing
+- [Router Mount STL Files](https://www.thingiverse.com/search?q=10+inch+rack+router+mount)
+- [Shapeways](https://www.shapeways.com/)
+- [PCBWay](https://www.pcbway.com/rapid-prototyping/3d-printing/)
