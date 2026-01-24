@@ -1,14 +1,14 @@
 ---
 # Dotfiles role - Deploy user configuration files
 
-- name: Get target user home directory
-  ansible.builtin.shell: "echo ~{{ ansible_user }}"
-  register: user_home
-  changed_when: false
+- name: Get target user info
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ ansible_user }}"
 
 - name: Set home directory fact
   ansible.builtin.set_fact:
-    home_dir: "{{ user_home.stdout }}"
+    home_dir: "{{ getent_passwd[ansible_user][4] }}"
 
 - name: Create .vim directories
   ansible.builtin.file:
@@ -36,6 +36,7 @@
 - name: Deploy .bashrc additions
   ansible.builtin.blockinfile:
     path: "{{ home_dir }}/.bashrc"
+    create: true
     marker: "# {mark} ANSIBLE MANAGED - HOMERACK"
     block: |
       # Aliases
