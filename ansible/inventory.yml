@@ -41,11 +41,17 @@ all:
     # ─────────────────────────────────────────────────────────────────────────
     pis:
       hosts:
-        # AI Camera Pi - Currently Active
+        # AI Camera Pi
         pi5cam:
           ansible_host: pi5cam.local
           ansible_user: rege
           description: "Raspberry Pi 5 - AI Camera"
+
+        # Main Pi - Rails staging server
+        pi5main:
+          ansible_host: pi5main.local
+          ansible_user: rege
+          description: "Raspberry Pi 5 - Rails Staging"
 
         # Future Pi nodes (uncomment when ready)
         # pi5-1:
