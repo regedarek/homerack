@@ -1,0 +1,44 @@
+# Ansible cache
+.ansible_cache/
+*.retry
+
+# Secrets and vault files
+*.vault
+vault_password
+.vault_pass
+vault.yml
+secrets.yml
+
+# SSH keys
+*.pem
+*.key
+id_rsa*
+
+# Environment files
+.env
+*.env.local
+
+# Log files
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.bak
+tmp/
+
+# Custom inventory with sensitive data
+inventory.local.yml
+inventory.prod.yml
+hosts.local
