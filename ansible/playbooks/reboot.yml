@@ -1,0 +1,54 @@
+---
+# Reboot all hosts playbook
+# Usage: ansible-playbook playbooks/reboot.yml
+#
+# Options:
+#   --limit pis          Only reboot Pi nodes
+#   --limit pi5cam       Reboot specific host
+#   -e force_reboot=true Force reboot even if not required
+
+- name: Reboot HomeRack hosts
+  hosts: all
+  become: true
+  gather_facts: true
+  serial: 1  # Reboot one host at a time
+
+  vars:
+    force_reboot: false
+    reboot_timeout: 300
+    wait_for_connection_timeout: 60
+
+  tasks:
+    - name: Check if reboot is required
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+
+    - name: Display reboot status
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }}: Reboot {{ 'required' if reboot_required.stat.exists else 'not required' }}"
+
+    - name: Reboot host
+      ansible.builtin.reboot:
+        msg: "Reboot initiated by Ansible"
+        connect_timeout: 5
+        reboot_timeout: "{{ reboot_timeout }}"
+        pre_reboot_delay: 5
+        post_reboot_delay: 30
+        test_command: uptime
+      when: reboot_required.stat.exists or force_reboot | bool
+
+    - name: Wait for host to come back online
+      ansible.builtin.wait_for_connection:
+        delay: 10
+        timeout: "{{ wait_for_connection_timeout }}"
+      when: reboot_required.stat.exists or force_reboot | bool
+
+    - name: Verify host is up
+      ansible.builtin.command: uptime
+      register: uptime_result
+      changed_when: false
+
+    - name: Display uptime after reboot
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }}: {{ uptime_result.stdout }}"

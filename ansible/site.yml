@@ -1,0 +1,32 @@
+---
+# Main playbook for HomeRack Pi setup
+# Usage: ansible-playbook -i inventory.yml site.yml
+
+- name: Setup HomeRack Raspberry Pi nodes
+  hosts: all
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+  roles:
+    - role: common
+      tags: [common, always]
+    - role: packages
+      tags: [packages]
+    - role: dotfiles
+      tags: [dotfiles]
+
+  post_tasks:
+    - name: Display system info
+      ansible.builtin.debug:
+        msg: |
+          Host: {{ inventory_hostname }}
+          OS: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}
+          Kernel: {{ ansible_facts['kernel'] }}
+          Architecture: {{ ansible_facts['architecture'] }}
+          Memory: {{ ansible_facts['memtotal_mb'] }} MB

@@ -1,0 +1,38 @@
+---
+# Handlers for common role
+
+- name: Restart SSH
+  ansible.builtin.service:
+    name: ssh
+    state: restarted
+
+- name: Restart sshd
+  ansible.builtin.service:
+    name: sshd
+    state: restarted
+
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Restart networking
+  ansible.builtin.service:
+    name: networking
+    state: restarted
+
+- name: Apply sysctl
+  ansible.builtin.command: sysctl -p
+  changed_when: true
+
+- name: Update timezone
+  ansible.builtin.command: dpkg-reconfigure -f noninteractive tzdata
+  changed_when: true
+
+- name: Reboot host
+  ansible.builtin.reboot:
+    msg: "Reboot initiated by Ansible"
+    connect_timeout: 5
+    reboot_timeout: 600
+    pre_reboot_delay: 0
+    post_reboot_delay: 30
+    test_command: uptime

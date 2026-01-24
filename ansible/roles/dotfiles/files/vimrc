@@ -1,0 +1,206 @@
+" ============================================================================
+" Minimal Vim Configuration for Raspberry Pi
+" ============================================================================
+" This is a standalone config - no plugins required
+" Deployed via Ansible from HomeRack
+
+" ============================================================================
+" Basic Settings
+" ============================================================================
+set nocompatible              " Use Vim defaults instead of Vi
+filetype indent plugin on     " Enable filetype detection, plugins, indent
+syntax on                     " Enable syntax highlighting
+
+" Leader key
+let mapleader="\<Space>"
+
+" ============================================================================
+" Appearance
+" ============================================================================
+set background=dark           " Dark background
+set termguicolors             " Enable 24-bit RGB colors (if terminal supports)
+set number                    " Show line numbers
+set relativenumber            " Relative line numbers
+set cursorline                " Highlight current line
+set showmatch                 " Highlight matching brackets
+set showcmd                   " Show command in bottom bar
+set showmode                  " Show current mode
+set laststatus=2              " Always show status line
+set ruler                     " Show cursor position
+set signcolumn=yes            " Always show sign column
+
+" Status line
+set statusline=%F%m%r%h%w\ [%{&ff}]\ [%Y]\ [%l,%v]\ [%p%%]\ [%L\ lines]
+
+" ============================================================================
+" Indentation
+" ============================================================================
+set autoindent                " Copy indent from current line
+set smartindent               " Smart autoindenting
+set expandtab                 " Use spaces instead of tabs
+set tabstop=2                 " Tab = 2 spaces
+set shiftwidth=2              " Indent = 2 spaces
+set softtabstop=2             " Backspace removes 2 spaces
+
+" ============================================================================
+" Search
+" ============================================================================
+set incsearch                 " Search as you type
+set hlsearch                  " Highlight search results
+set ignorecase                " Case insensitive search
+set smartcase                 " Unless uppercase is used
+
+" Clear search highlighting with <leader>/
+nnoremap <leader>/ :nohlsearch<CR>
+
+" ============================================================================
+" Editing
+" ============================================================================
+set backspace=indent,eol,start  " Backspace works as expected
+set hidden                    " Allow hidden buffers
+set autoread                  " Auto reload changed files
+set clipboard=unnamedplus     " Use system clipboard
+set mouse=a                   " Enable mouse support
+set scrolloff=8               " Keep 8 lines above/below cursor
+set sidescrolloff=8           " Keep 8 columns left/right of cursor
+set wrap                      " Wrap long lines
+set linebreak                 " Wrap at word boundaries
+set splitbelow                " New horizontal splits below
+set splitright                " New vertical splits right
+
+" ============================================================================
+" Performance
+" ============================================================================
+set lazyredraw                " Don't redraw during macros
+set updatetime=300            " Faster completion
+set timeoutlen=500            " Faster key sequence completion
+
+" ============================================================================
+" File Handling
+" ============================================================================
+set encoding=utf-8            " UTF-8 encoding
+set fileencoding=utf-8        " UTF-8 file encoding
+set nobackup                  " Don't create backup files
+set nowritebackup             " Don't create backup before overwriting
+set noswapfile                " Don't use swap files
+
+" Persistent undo
+if has('persistent_undo')
+  set undofile
+  set undodir=~/.vim/undodir
+  silent !mkdir -p ~/.vim/undodir
+endif
+
+" ============================================================================
+" Wildmenu (Command-line completion)
+" ============================================================================
+set wildmenu                  " Visual autocomplete for command menu
+set wildmode=longest:full,full
+set wildignore+=*.o,*.obj,*.pyc,*.class
+set wildignore+=*.swp,*.bak,*~
+set wildignore+=node_modules/*,__pycache__/*,.git/*
+
+" ============================================================================
+" Key Mappings
+" ============================================================================
+
+" Quick save
+nnoremap <leader>w :w<CR>
+nnoremap <leader>q :q<CR>
+nnoremap <leader>x :x<CR>
+
+" Better window navigation
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+" Resize windows with arrows
+nnoremap <C-Up> :resize +2<CR>
+nnoremap <C-Down> :resize -2<CR>
+nnoremap <C-Left> :vertical resize -2<CR>
+nnoremap <C-Right> :vertical resize +2<CR>
+
+" Buffer navigation
+nnoremap <leader>bn :bnext<CR>
+nnoremap <leader>bp :bprevious<CR>
+nnoremap <leader>bd :bdelete<CR>
+nnoremap <leader>bl :ls<CR>
+
+" Move lines up/down
+nnoremap <A-j> :m .+1<CR>==
+nnoremap <A-k> :m .-2<CR>==
+vnoremap <A-j> :m '>+1<CR>gv=gv
+vnoremap <A-k> :m '<-2<CR>gv=gv
+
+" Stay in visual mode when indenting
+vnoremap < <gv
+vnoremap > >gv
+
+" Quick access to netrw file browser
+nnoremap <leader>e :Explore<CR>
+
+" Toggle line numbers
+nnoremap <leader>n :set number! relativenumber!<CR>
+
+" ============================================================================
+" Netrw (File Browser)
+" ============================================================================
+let g:netrw_banner = 0        " Hide banner
+let g:netrw_liststyle = 3     " Tree view
+let g:netrw_browse_split = 4  " Open in previous window
+let g:netrw_winsize = 25      " 25% width
+let g:netrw_altv = 1          " Open splits to the right
+
+" ============================================================================
+" Filetype-specific Settings
+" ============================================================================
+augroup FileTypeSettings
+  autocmd!
+  " Python
+  autocmd FileType python setlocal tabstop=4 shiftwidth=4 softtabstop=4
+  
+  " Makefiles use tabs
+  autocmd FileType make setlocal noexpandtab
+  
+  " YAML
+  autocmd FileType yaml setlocal tabstop=2 shiftwidth=2 softtabstop=2
+  
+  " Markdown
+  autocmd FileType markdown setlocal wrap linebreak spell
+  
+  " Git commit messages
+  autocmd FileType gitcommit setlocal spell textwidth=72
+augroup END
+
+" ============================================================================
+" Auto Commands
+" ============================================================================
+augroup GeneralSettings
+  autocmd!
+  " Return to last edit position when opening files
+  autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+  
+  " Remove trailing whitespace on save
+  autocmd BufWritePre * :%s/\s\+$//e
+  
+  " Auto-resize splits when window is resized
+  autocmd VimResized * wincmd =
+augroup END
+
+" ============================================================================
+" Color Scheme (Built-in fallback)
+" ============================================================================
+" Use a nice built-in colorscheme that works in terminals
+try
+  colorscheme slate
+catch
+  colorscheme default
+endtry
+
+" Custom highlights for better visibility
+highlight CursorLine cterm=NONE ctermbg=236 guibg=#303030
+highlight LineNr ctermfg=grey guifg=grey
+highlight CursorLineNr ctermfg=yellow guifg=yellow
+highlight Search ctermbg=yellow ctermfg=black guibg=yellow guifg=black
+highlight Visual ctermbg=238 guibg=#444444

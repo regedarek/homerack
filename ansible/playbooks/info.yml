@@ -1,0 +1,92 @@
+---
+# Gather system information from all hosts
+# Usage: ansible-playbook playbooks/info.yml
+
+- name: Gather System Information
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Display basic system info
+      ansible.builtin.debug:
+        msg: |
+          ═══════════════════════════════════════════════════
+          Host: {{ inventory_hostname }} ({{ ansible_host }})
+          ═══════════════════════════════════════════════════
+          OS: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}
+          Kernel: {{ ansible_facts['kernel'] }}
+          Architecture: {{ ansible_facts['architecture'] }}
+          ───────────────────────────────────────────────────
+          CPU: {{ ansible_facts['processor'][2] | default(ansible_facts['processor'][1]) }}
+          CPU Cores: {{ ansible_facts['processor_cores'] }} ({{ ansible_facts['processor_vcpus'] }} vCPUs)
+          ───────────────────────────────────────────────────
+          Total Memory: {{ ansible_facts['memtotal_mb'] }} MB
+          Free Memory: {{ ansible_facts['memfree_mb'] }} MB
+          Swap Total: {{ ansible_facts['swaptotal_mb'] }} MB
+          ───────────────────────────────────────────────────
+
+    - name: Get uptime
+      ansible.builtin.command: uptime -p
+      register: uptime_result
+      changed_when: false
+
+    - name: Display uptime
+      ansible.builtin.debug:
+        msg: "Uptime: {{ uptime_result.stdout }}"
+
+    - name: Get disk usage
+      ansible.builtin.command: df -h /
+      register: disk_usage
+      changed_when: false
+
+    - name: Display disk usage
+      ansible.builtin.debug:
+        msg: "{{ disk_usage.stdout_lines }}"
+
+    - name: Get Raspberry Pi temperature (if available)
+      ansible.builtin.command: vcgencmd measure_temp
+      register: pi_temp
+      changed_when: false
+      failed_when: false
+
+    - name: Display temperature
+      ansible.builtin.debug:
+        msg: "Temperature: {{ pi_temp.stdout }}"
+      when: pi_temp.rc == 0
+
+    - name: Get installed packages count
+      ansible.builtin.shell: dpkg -l | grep -c '^ii'
+      register: pkg_count
+      changed_when: false
+      failed_when: false
+
+    - name: Display package count
+      ansible.builtin.debug:
+        msg: "Installed packages: {{ pkg_count.stdout }}"
+      when: pkg_count.rc == 0
+
+    - name: Check for pending updates
+      ansible.builtin.shell: apt list --upgradable 2>/dev/null | grep -c upgradable || echo 0
+      register: pending_updates
+      changed_when: false
+      failed_when: false
+
+    - name: Display pending updates
+      ansible.builtin.debug:
+        msg: "Pending updates: {{ pending_updates.stdout }}"
+
+    - name: Check if reboot is required
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+
+    - name: Display reboot status
+      ansible.builtin.debug:
+        msg: "⚠️  REBOOT REQUIRED"
+      when: reboot_required.stat.exists
+
+    - name: Display reboot not required
+      ansible.builtin.debug:
+        msg: "✓ No reboot required"
+      when: not reboot_required.stat.exists

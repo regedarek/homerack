@@ -1,0 +1,91 @@
+---
+# Dotfiles role - Deploy user configuration files
+
+- name: Get target user home directory
+  ansible.builtin.shell: "echo ~{{ ansible_user }}"
+  register: user_home
+  changed_when: false
+
+- name: Set home directory fact
+  ansible.builtin.set_fact:
+    home_dir: "{{ user_home.stdout }}"
+
+- name: Create .vim directories
+  ansible.builtin.file:
+    path: "{{ home_dir }}/{{ item }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+  loop:
+    - .vim
+    - .vim/colors
+    - .vim/undo
+    - .vim/backup
+    - .vim/swap
+
+- name: Deploy .vimrc
+  ansible.builtin.copy:
+    src: vimrc
+    dest: "{{ home_dir }}/.vimrc"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+    backup: true
+
+- name: Deploy .bashrc additions
+  ansible.builtin.blockinfile:
+    path: "{{ home_dir }}/.bashrc"
+    marker: "# {mark} ANSIBLE MANAGED - HOMERACK"
+    block: |
+      # Aliases
+      alias ll='ls -alF'
+      alias la='ls -A'
+      alias l='ls -CF'
+      alias ..='cd ..'
+      alias ...='cd ../..'
+      alias grep='grep --color=auto'
+      alias df='df -h'
+      alias du='du -h'
+      alias free='free -h'
+      
+      # Git aliases
+      alias gs='git status'
+      alias gd='git diff'
+      alias gl='git log --oneline -20'
+      alias gp='git pull'
+      
+      # System aliases
+      alias update='sudo apt update && sudo apt upgrade -y'
+      alias temp='vcgencmd measure_temp 2>/dev/null || echo "N/A"'
+      alias ports='netstat -tulanp'
+      
+      # Prompt customization
+      PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+      
+      # History settings
+      HISTSIZE=10000
+      HISTFILESIZE=20000
+      HISTCONTROL=ignoreboth:erasedups
+      shopt -s histappend
+      
+      # Better directory navigation
+      shopt -s autocd 2>/dev/null
+      shopt -s cdspell 2>/dev/null
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Deploy .tmux.conf
+  ansible.builtin.copy:
+    src: tmux.conf
+    dest: "{{ home_dir }}/.tmux.conf"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+    backup: true
+  when: deploy_tmux_config | default(true)
+
+- name: Source updated bashrc
+  ansible.builtin.debug:
+    msg: "Dotfiles deployed. Run 'source ~/.bashrc' or reconnect to apply changes."

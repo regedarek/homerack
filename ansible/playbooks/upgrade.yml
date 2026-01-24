@@ -1,0 +1,53 @@
+---
+# Quick system upgrade playbook
+# Usage: ansible-playbook playbooks/upgrade.yml
+#
+# Options:
+#   --limit pi5cam              Only upgrade specific host
+#   -e reboot_after_upgrade=true  Auto-reboot if required
+
+- name: Quick System Upgrade
+  hosts: all
+  become: true
+  gather_facts: true
+
+  vars:
+    reboot_after_upgrade: false
+
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 0
+
+    - name: Upgrade all packages
+      ansible.builtin.apt:
+        upgrade: dist
+      register: upgrade_result
+
+    - name: Display upgrade summary
+      ansible.builtin.debug:
+        msg: "Packages upgraded on {{ inventory_hostname }}"
+      when: upgrade_result.changed
+
+    - name: Remove unused dependencies
+      ansible.builtin.apt:
+        autoremove: true
+        autoclean: true
+
+    - name: Check if reboot is required
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+
+    - name: Display reboot status
+      ansible.builtin.debug:
+        msg: "{{ 'REBOOT REQUIRED on ' + inventory_hostname if reboot_required.stat.exists else 'No reboot required on ' + inventory_hostname }}"
+
+    - name: Reboot if required (when enabled)
+      ansible.builtin.reboot:
+        reboot_timeout: 300
+        msg: "Reboot initiated by Ansible upgrade playbook"
+      when:
+        - reboot_required.stat.exists
+        - reboot_after_upgrade | bool

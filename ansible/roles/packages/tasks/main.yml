@@ -1,0 +1,52 @@
+---
+# Packages role - Install and manage system packages
+
+- name: Ensure apt cache is updated
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install common packages
+  ansible.builtin.apt:
+    name: "{{ common_packages }}"
+    state: present
+  when: common_packages is defined and common_packages | length > 0
+
+- name: Check if btop is available in apt
+  ansible.builtin.command: apt-cache show btop
+  register: btop_apt_check
+  failed_when: false
+  changed_when: false
+
+- name: Install btop from apt if available
+  ansible.builtin.apt:
+    name: btop
+    state: present
+  when: btop_apt_check.rc == 0
+
+- name: Install btop from snap if not in apt
+  community.general.snap:
+    name: btop
+    state: present
+  when: btop_apt_check.rc != 0
+  ignore_errors: true
+
+- name: Install extra packages for Raspberry Pi
+  ansible.builtin.apt:
+    name:
+      - rpi-eeprom
+    state: present
+  when: ansible_facts['machine'] == "aarch64" or ansible_facts['machine'] == "armv7l"
+  ignore_errors: true
+
+- name: Remove unwanted packages
+  ansible.builtin.apt:
+    name: "{{ packages_to_remove }}"
+    state: absent
+    purge: true
+  when: packages_to_remove is defined and packages_to_remove | length > 0
+
+- name: Clean up apt cache
+  ansible.builtin.apt:
+    autoclean: true
+    autoremove: true

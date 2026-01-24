@@ -1,0 +1,79 @@
+---
+# HomeRack Ansible Inventory
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# QUICK REFERENCE COMMANDS:
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Test connectivity:
+#   ansible all -m ping
+#   ansible pis -m ping
+#   ansible pi5cam -m ping
+#
+# Run full setup:
+#   ansible-playbook site.yml
+#   ansible-playbook site.yml --limit pi5cam
+#   ansible-playbook site.yml --limit pis
+#
+# Quick upgrades:
+#   ansible-playbook playbooks/upgrade.yml
+#   ansible-playbook playbooks/upgrade.yml --limit pi5cam
+#
+# System info:
+#   ansible-playbook playbooks/info.yml
+#
+# Ad-hoc commands:
+#   ansible all -a "uptime"
+#   ansible all -a "df -h"
+#   ansible pis -a "vcgencmd measure_temp" --become
+#   ansible all -m apt -a "name=htop state=present" --become
+#
+# Reboot:
+#   ansible-playbook playbooks/reboot.yml
+#   ansible-playbook playbooks/reboot.yml -e force_reboot=true
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+all:
+  children:
+    # ─────────────────────────────────────────────────────────────────────────
+    # Raspberry Pi Nodes
+    # ─────────────────────────────────────────────────────────────────────────
+    pis:
+      hosts:
+        # AI Camera Pi - Currently Active
+        pi5cam:
+          ansible_host: pi5cam.local
+          ansible_user: rege
+          description: "Raspberry Pi 5 - AI Camera"
+
+        # Future Pi nodes (uncomment when ready)
+        # pi5-1:
+        #   ansible_host: 192.168.1.101
+        #   ansible_user: pi
+        #   description: "Raspberry Pi 5 #1"
+        #
+        # pi5-2:
+        #   ansible_host: 192.168.1.102
+        #   ansible_user: pi
+        #   description: "Raspberry Pi 5 #2"
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # NAS / Storage Nodes
+    # ─────────────────────────────────────────────────────────────────────────
+    nas:
+      hosts: {}
+        # cm3588:
+        #   ansible_host: 192.168.1.103
+        #   ansible_user: pi
+        #   description: "CM3588 NAS"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Global Variables
+  # ═══════════════════════════════════════════════════════════════════════════
+  vars:
+    ansible_connection: ssh
+    ansible_python_interpreter: /usr/bin/python3
+
+    # SSH settings
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=accept-new'

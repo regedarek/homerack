@@ -1,0 +1,40 @@
+---
+# Global variables for all hosts
+
+# SSH settings
+ansible_user: pi
+ansible_become: true
+ansible_become_method: sudo
+
+# System settings
+timezone: "Europe/Warsaw"
+locale: "en_US.UTF-8"
+
+# Default packages to install on all hosts
+common_packages:
+  - btop
+  - htop
+  - vim
+  - git
+  - curl
+  - wget
+  - tmux
+  - fastfetch
+  - iotop
+  - ncdu
+  - tree
+  - jq
+  - unzip
+  - rsync
+  - net-tools
+  - dnsutils
+  - mtr-tiny
+  - iperf3
+
+# Security settings
+ssh_port: 22
+disable_password_auth: false
+
+# Update settings
+auto_upgrade: true
+reboot_if_required: true
