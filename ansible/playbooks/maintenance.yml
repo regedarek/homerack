@@ -1,0 +1,257 @@
+---
+# Maintenance playbook - Periodic system maintenance and security updates
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Usage:
+#   ansible-playbook playbooks/maintenance.yml
+#   ansible-playbook playbooks/maintenance.yml --limit pi5main
+#   ansible-playbook playbooks/maintenance.yml -e reboot_if_required=true
+#   ansible-playbook playbooks/maintenance.yml -e full_maintenance=true
+#
+# Schedule with cron (on control machine):
+#   0 3 * * 0 cd ~/code/homerack/ansible && ansible-playbook playbooks/maintenance.yml
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+- name: Periodic Maintenance
+  hosts: all
+  become: true
+  gather_facts: true
+  serial: 1  # Run on one host at a time for safety
+
+  vars:
+    # Set to true to auto-reboot if kernel/security updates require it
+    reboot_if_required: false
+    # Set to true for full maintenance (includes cleanup, logs, etc.)
+    full_maintenance: false
+    # Days to keep old logs
+    log_retention_days: 7
+    # Days to keep old kernels
+    kernel_retention: 2
+
+  tasks:
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Pre-flight checks
+    # ═══════════════════════════════════════════════════════════════════════════
+    - name: Display maintenance start
+      ansible.builtin.debug:
+        msg: |
+          ═══════════════════════════════════════════════════
+          Starting maintenance on {{ inventory_hostname }}
+          Time: {{ ansible_facts['date_time']['iso8601'] }}
+          ═══════════════════════════════════════════════════
+
+    - name: Check disk space before maintenance
+      ansible.builtin.shell: df -h / | tail -1 | awk '{print $5}' | tr -d '%'
+      register: disk_usage_before
+      changed_when: false
+
+    - name: Warn if disk usage is high
+      ansible.builtin.debug:
+        msg: "⚠️  WARNING: Disk usage is {{ disk_usage_before.stdout }}%"
+      when: disk_usage_before.stdout | int > 80
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Security Updates
+    # ═══════════════════════════════════════════════════════════════════════════
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 0
+
+    - name: Check for available updates
+      ansible.builtin.shell: apt list --upgradable 2>/dev/null | grep -v "Listing" | wc -l
+      register: available_updates
+      changed_when: false
+
+    - name: Display available updates count
+      ansible.builtin.debug:
+        msg: "📦 {{ available_updates.stdout }} packages available for update"
+
+    - name: Install security updates only
+      ansible.builtin.apt:
+        upgrade: safe
+        update_cache: false
+      register: security_upgrade
+      when: not full_maintenance
+
+    - name: Install all updates (full maintenance)
+      ansible.builtin.apt:
+        upgrade: dist
+        update_cache: false
+      register: full_upgrade
+      when: full_maintenance
+
+    - name: Display upgrade result
+      ansible.builtin.debug:
+        msg: "{{ 'Packages upgraded' if (security_upgrade.changed | default(false)) or (full_upgrade.changed | default(false)) else 'No updates applied' }}"
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Cleanup Tasks
+    # ═══════════════════════════════════════════════════════════════════════════
+    - name: Remove unused packages
+      ansible.builtin.apt:
+        autoremove: true
+        purge: true
+
+    - name: Clean apt cache
+      ansible.builtin.apt:
+        autoclean: true
+
+    - name: Remove old apt cache
+      ansible.builtin.shell: apt-get clean
+      changed_when: false
+
+    - name: Remove old kernels (keep last {{ kernel_retention }})
+      ansible.builtin.shell: |
+        dpkg -l 'linux-image-*' 2>/dev/null | grep ^ii | awk '{print $2}' | \
+        grep -v "$(uname -r)" | head -n -{{ kernel_retention }} | \
+        xargs -r apt-get -y purge
+      register: kernel_cleanup
+      changed_when: "'linux-image' in kernel_cleanup.stdout"
+      failed_when: false
+      when: full_maintenance
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Log Cleanup (full maintenance only)
+    # ═══════════════════════════════════════════════════════════════════════════
+    - name: Clean old journal logs
+      ansible.builtin.shell: journalctl --vacuum-time={{ log_retention_days }}d
+      register: journal_cleanup
+      changed_when: "'Vacuuming done' in journal_cleanup.stdout"
+      when: full_maintenance
+
+    - name: Remove old log files
+      ansible.builtin.shell: find /var/log -type f -name "*.gz" -mtime +{{ log_retention_days }} -delete
+      changed_when: false
+      when: full_maintenance
+
+    - name: Truncate large log files
+      ansible.builtin.shell: |
+        find /var/log -type f -size +50M -exec truncate -s 0 {} \;
+      changed_when: false
+      when: full_maintenance
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Temp Files Cleanup (full maintenance only)
+    # ═══════════════════════════════════════════════════════════════════════════
+    - name: Clean /tmp older than 7 days
+      ansible.builtin.shell: find /tmp -type f -atime +7 -delete 2>/dev/null || true
+      changed_when: false
+      when: full_maintenance
+
+    - name: Clean user cache directories
+      ansible.builtin.shell: |
+        find /home/*/.cache -type f -atime +30 -delete 2>/dev/null || true
+      changed_when: false
+      when: full_maintenance
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # System Health Checks
+    # ═══════════════════════════════════════════════════════════════════════════
+    - name: Check for failed systemd services
+      ansible.builtin.shell: systemctl --failed --no-legend | wc -l
+      register: failed_services
+      changed_when: false
+
+    - name: Warn about failed services
+      ansible.builtin.debug:
+        msg: "⚠️  WARNING: {{ failed_services.stdout }} failed systemd services"
+      when: failed_services.stdout | int > 0
+
+    - name: List failed services
+      ansible.builtin.shell: systemctl --failed --no-legend
+      register: failed_list
+      when: failed_services.stdout | int > 0
+      changed_when: false
+
+    - name: Display failed services
+      ansible.builtin.debug:
+        msg: "{{ failed_list.stdout_lines }}"
+      when: failed_services.stdout | int > 0
+
+    - name: Check Raspberry Pi temperature
+      ansible.builtin.command: vcgencmd measure_temp
+      register: pi_temp
+      changed_when: false
+      failed_when: false
+
+    - name: Warn if temperature is high
+      ansible.builtin.debug:
+        msg: "🌡️  WARNING: High temperature - {{ pi_temp.stdout }}"
+      when:
+        - pi_temp.rc == 0
+        - pi_temp.stdout | regex_search('temp=([0-9.]+)', '\\1') | first | float > 70
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Reboot Handling
+    # ═══════════════════════════════════════════════════════════════════════════
+    - name: Check if reboot is required
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+      register: reboot_required_file
+
+    - name: Read reboot reason
+      ansible.builtin.slurp:
+        src: /var/run/reboot-required.pkgs
+      register: reboot_packages
+      when: reboot_required_file.stat.exists
+      failed_when: false
+
+    - name: Display reboot status
+      ansible.builtin.debug:
+        msg: |
+          {% if reboot_required_file.stat.exists %}
+          ⚠️  REBOOT REQUIRED
+          Packages requiring reboot:
+          {{ (reboot_packages.content | default('') | b64decode).split('\n') | join(', ') }}
+          {% else %}
+          ✓ No reboot required
+          {% endif %}
+
+    - name: Reboot if required and enabled
+      ansible.builtin.reboot:
+        msg: "Maintenance reboot initiated by Ansible"
+        connect_timeout: 5
+        reboot_timeout: 300
+        pre_reboot_delay: 5
+        post_reboot_delay: 30
+        test_command: uptime
+      when:
+        - reboot_required_file.stat.exists
+        - reboot_if_required | bool
+
+    - name: Wait for host after reboot
+      ansible.builtin.wait_for_connection:
+        delay: 10
+        timeout: 120
+      when:
+        - reboot_required_file.stat.exists
+        - reboot_if_required | bool
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Final Report
+    # ═══════════════════════════════════════════════════════════════════════════
+    - name: Check disk space after maintenance
+      ansible.builtin.shell: df -h / | tail -1 | awk '{print $5}' | tr -d '%'
+      register: disk_usage_after
+      changed_when: false
+
+    - name: Get uptime
+      ansible.builtin.command: uptime -p
+      register: uptime_result
+      changed_when: false
+
+    - name: Display maintenance summary
+      ansible.builtin.debug:
+        msg: |
+          ═══════════════════════════════════════════════════
+          Maintenance Complete: {{ inventory_hostname }}
+          ═══════════════════════════════════════════════════
+          Disk Usage: {{ disk_usage_before.stdout }}% → {{ disk_usage_after.stdout }}%
+          Freed: {{ (disk_usage_before.stdout | int) - (disk_usage_after.stdout | int) }}%
+          Uptime: {{ uptime_result.stdout }}
+          Temperature: {{ pi_temp.stdout | default('N/A') }}
+          Failed Services: {{ failed_services.stdout }}
+          Reboot Required: {{ 'Yes' if reboot_required_file.stat.exists else 'No' }}
+          ═══════════════════════════════════════════════════

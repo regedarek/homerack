@@ -1,0 +1,293 @@
+#!/bin/bash
+# ============================================================================
+# HomeRack Maintenance Script
+# ============================================================================
+# Runs system maintenance and sends email notification with results
+# Deployed via Ansible to /usr/local/bin/homerack-maintenance.sh
+#
+# Usage:
+#   /usr/local/bin/homerack-maintenance.sh
+#   /usr/local/bin/homerack-maintenance.sh --full
+#
+# ============================================================================
+
+set -euo pipefail
+
+# Configuration
+HOSTNAME=$(hostname)
+EMAIL_TO="${MAINTENANCE_EMAIL:-dariusz.finster@gmail.com}"
+LOG_FILE="/var/log/homerack-maintenance.log"
+FULL_MAINTENANCE="${1:-}"
+
+# Colors for terminal (stripped in email)
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Initialize
+START_TIME=$(date +%s)
+ERRORS=0
+WARNINGS=0
+REPORT=""
+
+# ============================================================================
+# Helper Functions
+# ============================================================================
+
+log() {
+    local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+    echo "$msg" | tee -a "$LOG_FILE"
+    REPORT+="$msg\n"
+}
+
+log_success() {
+    log "✓ $1"
+}
+
+log_warning() {
+    log "⚠ WARNING: $1"
+    ((WARNINGS++)) || true
+}
+
+log_error() {
+    log "✗ ERROR: $1"
+    ((ERRORS++)) || true
+}
+
+check_root() {
+    if [[ $EUID -ne 0 ]]; then
+        echo "This script must be run as root"
+        exit 1
+    fi
+}
+
+# ============================================================================
+# Maintenance Tasks
+# ============================================================================
+
+get_system_info() {
+    log "═══════════════════════════════════════════════════"
+    log "Maintenance Report: $HOSTNAME"
+    log "Started: $(date)"
+    log "═══════════════════════════════════════════════════"
+    log ""
+    
+    # Disk usage
+    DISK_USAGE=$(df -h / | tail -1 | awk '{print $5}' | tr -d '%')
+    DISK_BEFORE=$DISK_USAGE
+    log "Disk usage: ${DISK_USAGE}%"
+    
+    if [[ $DISK_USAGE -gt 80 ]]; then
+        log_warning "Disk usage is high (${DISK_USAGE}%)"
+    fi
+    
+    # Memory
+    MEM_TOTAL=$(free -m | awk '/^Mem:/{print $2}')
+    MEM_USED=$(free -m | awk '/^Mem:/{print $3}')
+    log "Memory: ${MEM_USED}MB / ${MEM_TOTAL}MB"
+    
+    # Temperature (Raspberry Pi)
+    if command -v vcgencmd &> /dev/null; then
+        TEMP=$(vcgencmd measure_temp | cut -d= -f2)
+        log "Temperature: $TEMP"
+        TEMP_NUM=$(echo "$TEMP" | grep -oP '[0-9.]+')
+        if (( $(echo "$TEMP_NUM > 70" | bc -l) )); then
+            log_warning "Temperature is high ($TEMP)"
+        fi
+    fi
+    
+    # Uptime
+    UPTIME=$(uptime -p)
+    log "Uptime: $UPTIME"
+    log ""
+}
+
+update_packages() {
+    log "── Package Updates ──"
+    
+    # Update cache
+    log "Updating package cache..."
+    if apt-get update -qq 2>&1 | tee -a "$LOG_FILE"; then
+        log_success "Package cache updated"
+    else
+        log_error "Failed to update package cache"
+        return 1
+    fi
+    
+    # Check available updates
+    UPDATES=$(apt list --upgradable 2>/dev/null | grep -v "Listing" | wc -l)
+    log "Available updates: $UPDATES"
+    
+    if [[ $UPDATES -gt 0 ]]; then
+        # Install updates
+        if [[ "$FULL_MAINTENANCE" == "--full" ]]; then
+            log "Running dist-upgrade..."
+            if DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y -qq 2>&1 | tee -a "$LOG_FILE"; then
+                log_success "Dist-upgrade completed"
+            else
+                log_error "Dist-upgrade failed"
+            fi
+        else
+            log "Running safe upgrade..."
+            if DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -qq 2>&1 | tee -a "$LOG_FILE"; then
+                log_success "Safe upgrade completed"
+            else
+                log_error "Safe upgrade failed"
+            fi
+        fi
+    else
+        log_success "System is up to date"
+    fi
+    log ""
+}
+
+cleanup_system() {
+    log "── Cleanup ──"
+    
+    # Autoremove
+    log "Removing unused packages..."
+    apt-get autoremove -y -qq 2>&1 | tee -a "$LOG_FILE"
+    log_success "Autoremove completed"
+    
+    # Clean apt cache
+    log "Cleaning apt cache..."
+    apt-get autoclean -qq 2>&1 | tee -a "$LOG_FILE"
+    apt-get clean -qq 2>&1 | tee -a "$LOG_FILE"
+    log_success "Apt cache cleaned"
+    
+    if [[ "$FULL_MAINTENANCE" == "--full" ]]; then
+        # Clean journal logs (keep 7 days)
+        log "Cleaning old journal logs..."
+        journalctl --vacuum-time=7d 2>&1 | tee -a "$LOG_FILE"
+        log_success "Journal logs cleaned"
+        
+        # Clean old log files
+        log "Cleaning old compressed logs..."
+        find /var/log -type f -name "*.gz" -mtime +7 -delete 2>/dev/null || true
+        log_success "Old logs cleaned"
+        
+        # Clean /tmp
+        log "Cleaning old temp files..."
+        find /tmp -type f -atime +7 -delete 2>/dev/null || true
+        log_success "Temp files cleaned"
+    fi
+    log ""
+}
+
+check_services() {
+    log "── Service Health ──"
+    
+    FAILED=$(systemctl --failed --no-legend | wc -l)
+    if [[ $FAILED -gt 0 ]]; then
+        log_warning "$FAILED failed systemd services:"
+        systemctl --failed --no-legend | tee -a "$LOG_FILE"
+    else
+        log_success "All services running"
+    fi
+    log ""
+}
+
+check_reboot() {
+    log "── Reboot Status ──"
+    
+    if [[ -f /var/run/reboot-required ]]; then
+        log_warning "Reboot is required!"
+        if [[ -f /var/run/reboot-required.pkgs ]]; then
+            log "Packages requiring reboot:"
+            cat /var/run/reboot-required.pkgs | tee -a "$LOG_FILE"
+        fi
+        REBOOT_REQUIRED=1
+    else
+        log_success "No reboot required"
+        REBOOT_REQUIRED=0
+    fi
+    log ""
+}
+
+generate_summary() {
+    END_TIME=$(date +%s)
+    DURATION=$((END_TIME - START_TIME))
+    
+    DISK_AFTER=$(df -h / | tail -1 | awk '{print $5}' | tr -d '%')
+    DISK_FREED=$((DISK_BEFORE - DISK_AFTER))
+    
+    log "═══════════════════════════════════════════════════"
+    log "Maintenance Summary"
+    log "═══════════════════════════════════════════════════"
+    log "Duration: ${DURATION}s"
+    log "Disk: ${DISK_BEFORE}% → ${DISK_AFTER}% (freed ${DISK_FREED}%)"
+    log "Errors: $ERRORS"
+    log "Warnings: $WARNINGS"
+    log "Reboot Required: $([ $REBOOT_REQUIRED -eq 1 ] && echo 'Yes' || echo 'No')"
+    log "═══════════════════════════════════════════════════"
+    
+    if [[ $ERRORS -eq 0 && $WARNINGS -eq 0 ]]; then
+        STATUS="✅ SUCCESS"
+    elif [[ $ERRORS -eq 0 ]]; then
+        STATUS="⚠️ COMPLETED WITH WARNINGS"
+    else
+        STATUS="❌ FAILED"
+    fi
+    
+    log ""
+    log "Status: $STATUS"
+}
+
+send_email() {
+    log ""
+    log "Sending email notification to $EMAIL_TO..."
+    
+    if [[ $ERRORS -eq 0 && $WARNINGS -eq 0 ]]; then
+        SUBJECT="[HomeRack] ✅ $HOSTNAME - Maintenance OK"
+    elif [[ $ERRORS -eq 0 ]]; then
+        SUBJECT="[HomeRack] ⚠️ $HOSTNAME - Maintenance Warnings"
+    else
+        SUBJECT="[HomeRack] ❌ $HOSTNAME - Maintenance Failed"
+    fi
+    
+    # Strip ANSI colors for email
+    CLEAN_REPORT=$(echo -e "$REPORT" | sed 's/\x1b\[[0-9;]*m//g')
+    
+    # Send email using msmtp or mail
+    if command -v msmtp &> /dev/null; then
+        echo -e "Subject: $SUBJECT\nTo: $EMAIL_TO\nFrom: homerack@$HOSTNAME\nContent-Type: text/plain; charset=UTF-8\n\n$CLEAN_REPORT" | msmtp "$EMAIL_TO"
+        log_success "Email sent via msmtp"
+    elif command -v mail &> /dev/null; then
+        echo -e "$CLEAN_REPORT" | mail -s "$SUBJECT" "$EMAIL_TO"
+        log_success "Email sent via mail"
+    elif command -v sendmail &> /dev/null; then
+        echo -e "Subject: $SUBJECT\nTo: $EMAIL_TO\n\n$CLEAN_REPORT" | sendmail "$EMAIL_TO"
+        log_success "Email sent via sendmail"
+    else
+        log_error "No mail command available (install msmtp or mailutils)"
+    fi
+}
+
+# ============================================================================
+# Main
+# ============================================================================
+
+main() {
+    check_root
+    
+    # Create log directory
+    mkdir -p "$(dirname "$LOG_FILE")"
+    
+    # Rotate log if > 10MB
+    if [[ -f "$LOG_FILE" && $(stat -f%z "$LOG_FILE" 2>/dev/null || stat -c%s "$LOG_FILE") -gt 10485760 ]]; then
+        mv "$LOG_FILE" "${LOG_FILE}.old"
+    fi
+    
+    get_system_info
+    update_packages
+    cleanup_system
+    check_services
+    check_reboot
+    generate_summary
+    send_email
+    
+    exit $ERRORS
+}
+
+main "$@"

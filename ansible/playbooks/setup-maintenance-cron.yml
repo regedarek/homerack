@@ -1,0 +1,434 @@
+---
+# Setup automatic maintenance with email notifications
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Usage:
+#   ansible-playbook playbooks/setup-maintenance-cron.yml --limit pi5main
+#   ansible-playbook playbooks/setup-maintenance-cron.yml -e smtp_password=YOUR_APP_PASSWORD
+#
+# Prerequisites:
+#   1. Create a Gmail App Password (not your regular password):
+#      - Go to https://myaccount.google.com/apppasswords
+#      - Generate a new app password for "Mail"
+#      - Use that password with -e smtp_password=xxxx
+#
+#   2. Or set it in host_vars/pi5main.yml (encrypted with ansible-vault)
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+- name: Setup Automatic Maintenance with Email Notifications
+  hosts: all
+  become: true
+  gather_facts: true
+
+  vars:
+    notification_email: "dariusz.finster@gmail.com"
+    smtp_user: "{{ notification_email }}"
+    # smtp_password: SET VIA -e flag or host_vars (use ansible-vault!)
+    maintenance_schedule:
+      minute: "0"
+      hour: "3"
+      weekday: "0"  # Sunday
+    enable_maintenance_cron: true
+
+  tasks:
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Install Dependencies
+    # ═══════════════════════════════════════════════════════════════════════════
+    - name: Install mail utilities
+      ansible.builtin.apt:
+        name:
+          - msmtp
+          - msmtp-mta
+          - ca-certificates
+          - bc
+        state: present
+        update_cache: true
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Configure SMTP (msmtp)
+    # ═══════════════════════════════════════════════════════════════════════════
+    - name: Check if smtp_password is provided
+      ansible.builtin.assert:
+        that:
+          - smtp_password is defined
+          - smtp_password | length > 0
+        fail_msg: |
+          ❌ smtp_password is required!
+          
+          Run with: ansible-playbook playbooks/setup-maintenance-cron.yml -e smtp_password=YOUR_GMAIL_APP_PASSWORD
+          
+          To get an app password:
+          1. Go to https://myaccount.google.com/apppasswords
+          2. Select "Mail" and your device
+          3. Copy the generated password
+
+    - name: Configure msmtp for Gmail SMTP
+      ansible.builtin.copy:
+        dest: /etc/msmtprc
+        mode: '0600'
+        owner: root
+        group: root
+        content: |
+          # msmtp configuration for HomeRack maintenance notifications
+          # Deployed via Ansible - DO NOT EDIT MANUALLY
+          
+          # Default settings
+          defaults
+          auth           on
+          tls            on
+          tls_trust_file /etc/ssl/certs/ca-certificates.crt
+          logfile        /var/log/msmtp.log
+          
+          # Gmail account
+          account        gmail
+          host           smtp.gmail.com
+          port           587
+          from           {{ notification_email }}
+          user           {{ smtp_user }}
+          password       {{ smtp_password }}
+          
+          # Set default account
+          account default : gmail
+
+    - name: Create msmtp log file
+      ansible.builtin.file:
+        path: /var/log/msmtp.log
+        state: touch
+        mode: '0640'
+        owner: root
+        group: root
+        modification_time: preserve
+        access_time: preserve
+
+    - name: Test email configuration
+      ansible.builtin.shell: |
+        echo -e "Subject: [HomeRack] Test Email from {{ inventory_hostname }}\n\nThis is a test email from the HomeRack maintenance setup.\n\nIf you receive this, email notifications are working correctly.\n\nHost: {{ inventory_hostname }}\nTime: $(date)" | msmtp {{ notification_email }}
+      register: email_test
+      changed_when: false
+      failed_when: false
+
+    - name: Display email test result
+      ansible.builtin.debug:
+        msg: "{{ '✅ Test email sent successfully!' if email_test.rc == 0 else '❌ Email test failed: ' + email_test.stderr }}"
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Deploy Maintenance Script
+    # ═══════════════════════════════════════════════════════════════════════════
+    - name: Create maintenance log directory
+      ansible.builtin.file:
+        path: /var/log/maintenance
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+
+    - name: Deploy maintenance script
+      ansible.builtin.copy:
+        dest: /usr/local/bin/system-maintenance
+        mode: '0755'
+        owner: root
+        group: root
+        content: |
+          #!/bin/bash
+          # ============================================================================
+          # HomeRack Maintenance Script
+          # ============================================================================
+          # Deployed via Ansible - DO NOT EDIT MANUALLY
+          #
+          # Usage:
+          #   /usr/local/bin/system-maintenance          # Regular maintenance
+          #   /usr/local/bin/system-maintenance --full   # Full maintenance
+          # ============================================================================
+          
+          set -uo pipefail
+          
+          # Configuration
+          HOSTNAME=$(hostname)
+          EMAIL_TO="{{ notification_email }}"
+          LOG_FILE="/var/log/maintenance/maintenance.log"
+          FULL_MAINTENANCE="${1:-}"
+          
+          # Initialize
+          START_TIME=$(date +%s)
+          ERRORS=0
+          WARNINGS=0
+          REPORT=""
+          REBOOT_REQUIRED=0
+          DISK_BEFORE=0
+          
+          # ============================================================================
+          # Helper Functions
+          # ============================================================================
+          
+          log() {
+              local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+              echo "$msg" | tee -a "$LOG_FILE"
+              REPORT+="$msg"$'\n'
+          }
+          
+          log_success() { log "✓ $1"; }
+          log_warning() { log "⚠ WARNING: $1"; ((WARNINGS++)) || true; }
+          log_error() { log "✗ ERROR: $1"; ((ERRORS++)) || true; }
+          
+          check_root() {
+              if [[ $EUID -ne 0 ]]; then
+                  echo "This script must be run as root"
+                  exit 1
+              fi
+          }
+          
+          # ============================================================================
+          # Maintenance Tasks
+          # ============================================================================
+          
+          get_system_info() {
+              log "═══════════════════════════════════════════════════"
+              log "Maintenance Report: $HOSTNAME"
+              log "Started: $(date)"
+              log "═══════════════════════════════════════════════════"
+              log ""
+              
+              DISK_USAGE=$(df -h / | tail -1 | awk '{print $5}' | tr -d '%')
+              DISK_BEFORE=$DISK_USAGE
+              log "Disk usage: ${DISK_USAGE}%"
+              [[ $DISK_USAGE -gt 80 ]] && log_warning "Disk usage is high (${DISK_USAGE}%)"
+              
+              MEM_TOTAL=$(free -m | awk '/^Mem:/{print $2}')
+              MEM_USED=$(free -m | awk '/^Mem:/{print $3}')
+              log "Memory: ${MEM_USED}MB / ${MEM_TOTAL}MB"
+              
+              if command -v vcgencmd &> /dev/null; then
+                  TEMP=$(vcgencmd measure_temp | cut -d= -f2)
+                  log "Temperature: $TEMP"
+                  TEMP_NUM=$(echo "$TEMP" | grep -oP '[0-9.]+' || echo "0")
+                  if command -v bc &> /dev/null && (( $(echo "$TEMP_NUM > 70" | bc -l) )); then
+                      log_warning "Temperature is high ($TEMP)"
+                  fi
+              fi
+              
+              log "Uptime: $(uptime -p)"
+              log ""
+          }
+          
+          update_packages() {
+              log "── Package Updates ──"
+              
+              if apt-get update -qq >> "$LOG_FILE" 2>&1; then
+                  log_success "Package cache updated"
+              else
+                  log_error "Failed to update package cache"
+                  return 1
+              fi
+              
+              UPDATES=$(apt list --upgradable 2>/dev/null | grep -v "Listing" | wc -l)
+              log "Available updates: $UPDATES"
+              
+              if [[ $UPDATES -gt 0 ]]; then
+                  apt list --upgradable 2>/dev/null | grep -v "Listing" | head -20 >> "$LOG_FILE"
+                  
+                  if [[ "$FULL_MAINTENANCE" == "--full" ]]; then
+                      log "Running dist-upgrade..."
+                      if DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y -qq >> "$LOG_FILE" 2>&1; then
+                          log_success "Dist-upgrade completed"
+                      else
+                          log_error "Dist-upgrade failed"
+                      fi
+                  else
+                      log "Running safe upgrade..."
+                      if DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -qq >> "$LOG_FILE" 2>&1; then
+                          log_success "Safe upgrade completed"
+                      else
+                          log_error "Safe upgrade failed"
+                      fi
+                  fi
+              else
+                  log_success "System is up to date"
+              fi
+              log ""
+          }
+          
+          cleanup_system() {
+              log "── Cleanup ──"
+              
+              apt-get autoremove -y -qq >> "$LOG_FILE" 2>&1
+              log_success "Autoremove completed"
+              
+              apt-get autoclean -qq >> "$LOG_FILE" 2>&1
+              apt-get clean -qq >> "$LOG_FILE" 2>&1
+              log_success "Apt cache cleaned"
+              
+              if [[ "$FULL_MAINTENANCE" == "--full" ]]; then
+                  journalctl --vacuum-time=7d >> "$LOG_FILE" 2>&1 || true
+                  log_success "Journal logs cleaned"
+                  
+                  find /var/log -type f -name "*.gz" -mtime +7 -delete 2>/dev/null || true
+                  find /var/log -type f -name "*.old" -mtime +7 -delete 2>/dev/null || true
+                  log_success "Old logs cleaned"
+                  
+                  find /tmp -type f -atime +7 -delete 2>/dev/null || true
+                  log_success "Temp files cleaned"
+              fi
+              log ""
+          }
+          
+          check_services() {
+              log "── Service Health ──"
+              
+              FAILED=$(systemctl --failed --no-legend 2>/dev/null | wc -l)
+              if [[ $FAILED -gt 0 ]]; then
+                  log_warning "$FAILED failed systemd services:"
+                  REPORT+="$(systemctl --failed --no-legend 2>/dev/null)"$'\n'
+              else
+                  log_success "All services running"
+              fi
+              log ""
+          }
+          
+          check_security() {
+              log "── Security Checks ──"
+              
+              FAILED_SSH=$(journalctl -u ssh --since "24 hours ago" 2>/dev/null | grep "Failed password" | wc -l || echo "0")
+              FAILED_SSH=${FAILED_SSH//[^0-9]/}
+              FAILED_SSH=${FAILED_SSH:-0}
+              if [[ $FAILED_SSH -gt 10 ]]; then
+                  log_warning "$FAILED_SSH failed SSH login attempts in last 24h"
+              else
+                  log_success "SSH: $FAILED_SSH failed attempts (24h)"
+              fi
+              
+              log "Open ports: $(ss -tuln | grep LISTEN | wc -l)"
+              log ""
+          }
+          
+          check_reboot() {
+              log "── Reboot Status ──"
+              
+              if [[ -f /var/run/reboot-required ]]; then
+                  log_warning "Reboot is required!"
+                  [[ -f /var/run/reboot-required.pkgs ]] && REPORT+="$(cat /var/run/reboot-required.pkgs)"$'\n'
+                  REBOOT_REQUIRED=1
+              else
+                  log_success "No reboot required"
+                  REBOOT_REQUIRED=0
+              fi
+              log ""
+          }
+          
+          generate_summary() {
+              END_TIME=$(date +%s)
+              DURATION=$((END_TIME - START_TIME))
+              DISK_AFTER=$(df -h / | tail -1 | awk '{print $5}' | tr -d '%')
+              DISK_FREED=$((DISK_BEFORE - DISK_AFTER))
+              
+              log "═══════════════════════════════════════════════════"
+              log "Maintenance Summary"
+              log "═══════════════════════════════════════════════════"
+              log "Duration: ${DURATION}s"
+              log "Disk: ${DISK_BEFORE}% → ${DISK_AFTER}% (freed ${DISK_FREED}%)"
+              log "Errors: $ERRORS"
+              log "Warnings: $WARNINGS"
+              log "Reboot Required: $([ $REBOOT_REQUIRED -eq 1 ] && echo 'Yes' || echo 'No')"
+              log "═══════════════════════════════════════════════════"
+              
+              if [[ $ERRORS -eq 0 && $WARNINGS -eq 0 ]]; then
+                  STATUS="✅ SUCCESS"
+              elif [[ $ERRORS -eq 0 ]]; then
+                  STATUS="⚠️ COMPLETED WITH WARNINGS"
+              else
+                  STATUS="❌ FAILED"
+              fi
+              log ""
+              log "Status: $STATUS"
+          }
+          
+          send_email() {
+              log ""
+              log "Sending email notification to $EMAIL_TO..."
+              
+              if [[ $ERRORS -eq 0 && $WARNINGS -eq 0 ]]; then
+                  SUBJECT="[HomeRack] ✅ $HOSTNAME - Maintenance OK"
+              elif [[ $ERRORS -eq 0 ]]; then
+                  SUBJECT="[HomeRack] ⚠️ $HOSTNAME - Maintenance Warnings"
+              else
+                  SUBJECT="[HomeRack] ❌ $HOSTNAME - Maintenance Failed"
+              fi
+              
+              if command -v msmtp &> /dev/null; then
+                  {
+                      echo "Subject: $SUBJECT"
+                      echo "To: $EMAIL_TO"
+                      echo "From: homerack@$HOSTNAME"
+                      echo "Content-Type: text/plain; charset=UTF-8"
+                      echo ""
+                      echo "$REPORT"
+                  } | msmtp "$EMAIL_TO" && log_success "Email sent" || log_error "Failed to send email"
+              else
+                  log_error "msmtp not available"
+              fi
+          }
+          
+          # ============================================================================
+          # Main
+          # ============================================================================
+          
+          main() {
+              check_root
+              mkdir -p "$(dirname "$LOG_FILE")"
+              
+              if [[ -f "$LOG_FILE" ]]; then
+                  LOG_SIZE=$(stat -c%s "$LOG_FILE" 2>/dev/null || stat -f%z "$LOG_FILE" 2>/dev/null || echo "0")
+                  [[ $LOG_SIZE -gt 10485760 ]] && mv "$LOG_FILE" "${LOG_FILE}.old"
+              fi
+              
+              echo "" >> "$LOG_FILE"
+              echo "================================================================================" >> "$LOG_FILE"
+              
+              get_system_info
+              update_packages
+              cleanup_system
+              check_services
+              check_security
+              check_reboot
+              generate_summary
+              send_email
+              
+              exit $ERRORS
+          }
+          
+          main "$@"
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Setup Cron Job
+    # ═══════════════════════════════════════════════════════════════════════════
+    - name: Setup weekly maintenance cron job
+      ansible.builtin.cron:
+        name: "HomeRack weekly maintenance"
+        minute: "{{ maintenance_schedule.minute }}"
+        hour: "{{ maintenance_schedule.hour }}"
+        weekday: "{{ maintenance_schedule.weekday }}"
+        user: root
+        job: "/usr/local/bin/system-maintenance 2>&1"
+        state: "{{ 'present' if enable_maintenance_cron else 'absent' }}"
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Summary
+    # ═══════════════════════════════════════════════════════════════════════════
+    - name: Display setup summary
+      ansible.builtin.debug:
+        msg: |
+          ═══════════════════════════════════════════════════
+          Maintenance Setup Complete: {{ inventory_hostname }}
+          ═══════════════════════════════════════════════════
+          
+          📧 Email: {{ notification_email }}
+          ⏰ Schedule: Every Sunday at 03:00
+          📜 Script: /usr/local/bin/system-maintenance
+          📁 Logs: /var/log/maintenance/maintenance.log
+          
+          Test commands:
+            sudo /usr/local/bin/system-maintenance        # Run maintenance now
+            sudo /usr/local/bin/system-maintenance --full # Full maintenance
+          
+          Email test: {{ '✅ Passed' if email_test.rc == 0 else '❌ Failed - check smtp_password' }}
+          ═══════════════════════════════════════════════════

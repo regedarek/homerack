@@ -20,6 +20,9 @@
       tags: [packages]
     - role: dotfiles
       tags: [dotfiles]
+    - role: maintenance
+      tags: [maintenance]
+      when: maintenance_enabled | default(true)
 
   post_tasks:
     - name: Display system info

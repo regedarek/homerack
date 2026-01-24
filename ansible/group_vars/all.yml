@@ -1,6 +1,16 @@
 ---
 # Global variables for all hosts
 
+# Notification email for maintenance reports
+notification_email: "dariusz.finster@gmail.com"
+
+# Maintenance settings (can be overridden in host_vars)
+enable_maintenance_cron: false  # Default off, enable per-host
+maintenance_schedule:
+  minute: "0"
+  hour: "3"
+  weekday: "0"  # Sunday
+
 # SSH settings
 ansible_user: pi
 ansible_become: true

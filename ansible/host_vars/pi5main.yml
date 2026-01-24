@@ -1,0 +1,18 @@
+---
+# Host variables for pi5main (Rails staging server)
+# This Pi runs automatic maintenance with email notifications
+
+# Enable automatic weekly maintenance cron job
+enable_maintenance_cron: true
+
+# Maintenance schedule (Sunday at 3:00 AM)
+maintenance_schedule:
+  minute: "0"
+  hour: "3"
+  weekday: "0"  # Sunday
+
+# Email notifications
+notification_email: "dariusz.finster@gmail.com"
+
+# Description
+host_description: "Raspberry Pi 5 - Rails Staging Server"

@@ -26,6 +26,12 @@ ansible-playbook playbooks/reboot.yml
 
 # Deploy dotfiles only
 ansible-playbook site.yml --tags dotfiles
+
+# Periodic maintenance (security updates)
+ansible-playbook playbooks/maintenance.yml
+
+# Full maintenance (cleanup, logs, etc.)
+ansible-playbook playbooks/maintenance.yml -e full_maintenance=true
 ```
 
 ---
@@ -119,6 +125,31 @@ ansible all -m shell -a "ps aux --sort=-%mem | head -10"
 # Check for pending updates
 ansible all -m shell -a "apt list --upgradable" --become
 ```
+
+### 🔧 Maintenance & Updates
+
+```bash
+# Regular maintenance (security updates only)
+ansible-playbook playbooks/maintenance.yml
+
+# Full maintenance (cleanup, logs, old kernels)
+ansible-playbook playbooks/maintenance.yml -e full_maintenance=true
+
+# Maintenance with auto-reboot if required
+ansible-playbook playbooks/maintenance.yml -e reboot_if_required=true
+
+# Full maintenance with reboot
+ansible-playbook playbooks/maintenance.yml -e "full_maintenance=true reboot_if_required=true"
+
+# Maintenance on specific host
+ansible-playbook playbooks/maintenance.yml --limit pi5main
+```
+
+**Automatic maintenance is configured per-host:**
+- `pi5main`: Cron enabled (Sunday 3am) + email notifications
+- `pi5cam`: Manual only (no cron)
+
+See host_vars/ for per-host settings.
 
 ### 🔄 Reboot & Power
 
@@ -233,6 +264,18 @@ ansible/
         └── files/
             ├── vimrc        # Vim configuration
             └── tmux.conf    # Tmux configuration
+    └── maintenance/         # Automatic maintenance with email
+        └── tasks/main.yml
+
+├── playbooks/
+│   ├── upgrade.yml          # Quick package upgrade
+│   ├── info.yml             # System information
+│   ├── reboot.yml           # Safe reboot
+│   └── maintenance.yml      # Ad-hoc maintenance run
+
+├── host_vars/               # Per-host settings
+│   ├── pi5main.yml          # Cron enabled
+│   └── pi5cam.yml           # Cron disabled (manual)
 ```
 
 ---
@@ -271,6 +314,59 @@ ansible/
   - `gs`, `gd`, `gl`, `gp` - git shortcuts
   - `update` - apt update && upgrade
   - `temp` - show Pi temperature
+
+### Maintenance Playbook
+
+The `maintenance.yml` playbook performs:
+
+| Task | Default | Full Mode |
+|------|---------|-----------|
+| Security updates | ✅ | ✅ |
+| Dist upgrade | ❌ | ✅ |
+| Autoremove packages | ✅ | ✅ |
+| Clean apt cache | ✅ | ✅ |
+| Remove old kernels | ❌ | ✅ |
+| Clean journal logs | ❌ | ✅ |
+| Clean /tmp files | ❌ | ✅ |
+| Check failed services | ✅ | ✅ |
+| Check temperature | ✅ | ✅ |
+| Reboot if required | ❌ | Optional |
+
+### Automatic Maintenance with Email Notifications
+
+Maintenance is set up automatically when running `site.yml` with smtp_password:
+
+```bash
+# Full setup including maintenance (first time or new Pi)
+ansible-playbook site.yml -e smtp_password=YOUR_GMAIL_APP_PASSWORD
+
+# Or just maintenance role
+ansible-playbook site.yml --tags maintenance -e smtp_password=YOUR_GMAIL_APP_PASSWORD
+```
+
+**Get Gmail App Password:**
+1. Go to https://myaccount.google.com/apppasswords
+2. Select "Mail" and generate password
+3. Use that 16-character password
+
+**Per-host configuration (in host_vars/):**
+
+| Host | Cron | Config File |
+|------|------|-------------|
+| `pi5main` | ✅ Enabled (Sunday 3am) | `host_vars/pi5main.yml` |
+| `pi5cam` | ❌ Disabled (manual only) | `host_vars/pi5cam.yml` |
+
+**Email subjects:**
+- `[HomeRack] ✅ pi5main - Maintenance OK` - all good
+- `[HomeRack] ⚠️ pi5main - Maintenance Warnings` - completed with warnings
+- `[HomeRack] ❌ pi5main - Maintenance Failed` - errors occurred
+
+**Manual run (works on any Pi):**
+```bash
+ssh rege@pi5cam.local
+sudo /usr/local/bin/system-maintenance        # regular
+sudo /usr/local/bin/system-maintenance --full # full cleanup
+```
 
 ---
 

@@ -1,0 +1,12 @@
+---
+# Host variables for pi5cam (AI Camera Pi)
+# Maintenance cron disabled - manual only
+
+# Maintenance settings
+enable_maintenance_cron: false
+
+# Notification email (same for all hosts)
+notification_email: "dariusz.finster@gmail.com"
+
+# Description
+host_description: "Raspberry Pi 5 - AI Camera"

@@ -1,0 +1,20 @@
+# msmtp configuration for HomeRack maintenance notifications
+# Deployed via Ansible
+
+# Default settings
+defaults
+auth           on
+tls            on
+tls_trust_file /etc/ssl/certs/ca-certificates.crt
+logfile        /var/log/msmtp.log
+
+# Gmail account
+account        gmail
+host           smtp.gmail.com
+port           587
+from           {{ notification_email }}
+user           {{ smtp_user | default(notification_email) }}
+password       {{ smtp_password }}
+
+# Set default account
+account default : gmail
