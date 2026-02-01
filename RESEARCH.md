@@ -18,11 +18,13 @@ Based on [geerlingguy/mini-rack#4](https://github.com/geerlingguy/mini-rack/issu
    - Storage: NVMe SSD
    - Power: USB-C
 
-3. **[FriendlyElec CM3588 Plus NAS](https://www.friendlyelec.com/index.php?route=product/product&product_id=294)**
-   - Model: CM3588 NAS Kit
-   - RAM: 16GB
+3. **[FriendlyElec CM3588 Plus NAS](https://www.friendlyelec.com/index.php?route=product/product&product_id=294)** (NAS)
+   - Model: CM3588 Plus 16GB
+   - Role: Network Attached Storage (NAS)
+   - OS: OpenMediaVault
+   - RAM: 16GB LPDDR4X
    - eMMC: 64GB
-   - Storage: 3x 1TB SSD
+   - Storage: 3x 1TB SSD (SATA)
    - MicroSD: [SanDisk Ultra 32GB Class 10 UHS-I](https://www.amazon.com/SanDisk-Ultra-UHS-I-Memory-Adapter/dp/B00M55C0VU)
    - Power: 12V 4A Universal Adapter
 
@@ -35,6 +37,13 @@ Based on [geerlingguy/mini-rack#4](https://github.com/geerlingguy/mini-rack/issu
   - WAN: 1x Gigabit port
   - WiFi: AC1200 (2.4GHz 300Mbps + 5GHz 867Mbps)
   - Power: 12V 2A (24W)
+- **[Ubiquiti USW-Lite-8-PoE](https://store.ui.com/us/en/products/usw-lite-8-poe)** - 8-Port Gigabit Managed Switch
+  - 8x Gigabit Ethernet ports
+  - 4x PoE+ ports (802.3at)
+  - PoE Budget: 52W total
+  - Management: UniFi Controller (cloud or self-hosted)
+  - Power: 802.3at PoE or DC adapter
+  - Fanless, silent operation
 
 ### Power
 - **[Allpowers Volix P300](https://www.allpowers.com/products/allpowers-p300-portable-power-station)**
