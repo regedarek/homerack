@@ -34,7 +34,7 @@
 
 External:
 - T-Mobile 5G Antenna (FWA-ED309B) - wall mounted
-- Allpowers P300 UPS (288Wh/300W) - beside rack
+- APC BV700I-GR UPS (700VA/390W) - beside rack
 - PoE Injector (802.3at, 25.5W) - side mount inside rack
 - UGREEN 200W Charger - rear mount inside rack
 ```
@@ -62,7 +62,7 @@ External:
 ### Power
 | Device | Input | Output | Location | Link |
 |--------|-------|--------|----------|------|
-| Allpowers P300 | AC 110-240V | 288Wh, 300W | External | [Amazon](https://www.amazon.com/dp/B09NNVQZTF) |
+| APC BV700I-GR UPS | AC 110-240V | 700VA/390W, 4× Schuko | External | [APC Store](https://www.apc.com/pl/pl/product/BV700I-GR/) |
 | UGREEN 200W (Model 40914) | AC | 4× USB-C + 2× USB-A | Rear mount | [Amazon.pl B09PFNP7WY](https://www.amazon.pl/dp/B09PFNP7WY) |
 | USB-C PD Trigger × 2 | USB-C PD | 12V DC 5.5×2.1mm | Inline | [Amazon.pl](https://www.amazon.pl/dp/B0CKNW7QMJ) |
 
@@ -82,16 +82,18 @@ Internet → 5G Antenna → PoE Injector → Router (WAN)
 ## Power Distribution
 
 ```
-Wall → UPS (300W) → UGREEN 200W Hub
-                        │
-        ┌───────────────┼───────────────┬─────────────┬─────────────┐
-        │               │               │             │             │
-      Pi5#1           Pi5#2           NAS         Router        Switch
-       27W             27W      48W (12V trigger)  24W (12V trigger)  8W
+Wall → APC BV700I-GR (700VA/390W) → UGREEN 200W Hub
+                                         │
+                 ┌───────────────────────┼───────────────┬─────────────┬─────────────┐
+                 │                       │               │             │             │
+               Pi5#1                   Pi5#2           NAS         Router        Switch
+                27W                     27W      48W (12V trigger)  24W (12V trigger)  8W
 ```
 
-**Total Draw:** 134W / 200W hub / 300W UPS
-**UPS Runtime:** ~2.4 hours at full load
+**Current Load:** 50W (typical) / 134W (max)
+**Total Capacity:** 200W hub / 390W UPS
+**UPS Runtime @ 50W:** ~25-35 minutes
+**UPS Runtime @ 134W:** ~10-15 minutes
 
 ## Cable Specifications
 
@@ -124,7 +126,7 @@ Wall → UPS (300W) → UGREEN 200W Hub
 
 ### Hardware
 - [GeeekPi 1U Shelf](https://www.amazon.com/dp/B0BPZ37MFS)
-- [Allpowers P300 UPS](https://www.amazon.com/dp/B09NNVQZTF)
+- [APC BV700I-GR UPS](https://www.apc.com/pl/pl/product/BV700I-GR/)
 - [UGREEN 200W Charger](https://www.amazon.pl/dp/B09PFNP7WY)
 
 ### Cables & Accessories
