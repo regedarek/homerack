@@ -2,6 +2,9 @@
 # Host variables for pi5cam (AI Camera Pi)
 # Maintenance cron disabled - manual only
 
+# Rack assignment
+rack: "pi5cam"
+
 # Maintenance settings
 enable_maintenance_cron: false
 

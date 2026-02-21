@@ -2,6 +2,9 @@
 # Host variables for pi5main (Rails staging server)
 # This Pi runs automatic maintenance with email notifications
 
+# Rack assignment
+rack: "pi5main"
+
 # Enable automatic weekly maintenance cron job
 enable_maintenance_cron: true
 

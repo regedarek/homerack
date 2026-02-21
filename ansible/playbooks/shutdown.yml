@@ -1,0 +1,105 @@
+---
+# Shutdown playbook for HomeRack hosts
+# 
+# Usage:
+#   # Shutdown all hosts
+#   ansible-playbook playbooks/shutdown.yml
+#
+#   # Shutdown specific rack
+#   ansible-playbook playbooks/shutdown.yml -e target_rack=pi5main
+#   ansible-playbook playbooks/shutdown.yml -e target_rack=nas
+#
+#   # Shutdown specific host
+#   ansible-playbook playbooks/shutdown.yml --limit pi5main
+#   ansible-playbook playbooks/shutdown.yml --limit pi5cam
+#
+#   # Shutdown Pi nodes only
+#   ansible-playbook playbooks/shutdown.yml --limit pis
+#
+#   # Dry run (show what would be shut down without doing it)
+#   ansible-playbook playbooks/shutdown.yml --check
+#
+# Options:
+#   -e target_rack=RACK_NAME  Only shutdown hosts in specified rack
+#   -e shutdown_delay=60      Delay before shutdown (default: 10 seconds)
+#   -e force=true             Force shutdown even if users are logged in
+
+- name: Shutdown HomeRack hosts
+  hosts: all
+  become: true
+  gather_facts: true
+  serial: 1  # Shutdown one host at a time for safety
+
+  vars:
+    shutdown_delay: 10
+    force: false
+    target_rack: ""
+
+  tasks:
+    - name: Check if host should be shut down (rack filter)
+      ansible.builtin.set_fact:
+        skip_host: "{{ target_rack != '' and (rack is not defined or rack != target_rack) }}"
+
+    - name: Skip host if not in target rack
+      ansible.builtin.debug:
+        msg: "Skipping {{ inventory_hostname }} - not in rack '{{ target_rack }}'"
+      when: skip_host | bool
+
+    - name: Display shutdown warning
+      ansible.builtin.debug:
+        msg: |
+          ⚠️  WARNING: About to shutdown {{ inventory_hostname }}
+          Rack: {{ rack | default('unassigned') }}
+          Description: {{ host_description | default('N/A') }}
+          Delay: {{ shutdown_delay }} seconds
+      when: not skip_host | bool
+
+    - name: Check for logged in users
+      ansible.builtin.command: who
+      register: logged_in_users
+      changed_when: false
+      when: not skip_host | bool
+
+    - name: Display logged in users
+      ansible.builtin.debug:
+        msg: "Logged in users: {{ logged_in_users.stdout_lines | default(['None']) }}"
+      when: 
+        - not skip_host | bool
+        - logged_in_users.stdout | default('') | length > 0
+
+    - name: Abort if users are logged in and not forcing
+      ansible.builtin.fail:
+        msg: "Users are logged in on {{ inventory_hostname }}. Use -e force=true to override."
+      when:
+        - not skip_host | bool
+        - not force | bool
+        - logged_in_users.stdout | default('') | length > 0
+
+    - name: Send shutdown notification to logged in users
+      ansible.builtin.command: wall "System shutdown initiated by Ansible in {{ shutdown_delay }} seconds"
+      when: 
+        - not skip_host | bool
+        - logged_in_users.stdout | default('') | length > 0
+      ignore_errors: true
+
+    - name: Initiate system shutdown
+      ansible.builtin.command: "shutdown -h +{{ (shutdown_delay / 60) | int }}"
+      when: not skip_host | bool
+      register: shutdown_result
+
+    - name: Confirm shutdown scheduled
+      ansible.builtin.debug:
+        msg: "✅ Shutdown scheduled for {{ inventory_hostname }} in {{ shutdown_delay }} seconds"
+      when: not skip_host | bool
+
+  post_tasks:
+    - name: Summary
+      ansible.builtin.debug:
+        msg: |
+          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          Shutdown Playbook Complete
+          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          All targeted hosts have been scheduled for shutdown.
+          They will power off after the configured delay.
+          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      run_once: true

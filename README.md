@@ -5,6 +5,7 @@
 - [Physical Layout](#physical-layout)
 - [Components](#components)
 - [Network Topology](#network-topology)
+- [Tailscale Network](#tailscale-network)
 - [Power Distribution](#power-distribution)
 - [Cable Specifications](#cable-specifications)
 - [Power Requirements](#power-requirements)
@@ -68,6 +69,7 @@ External:
 
 ## Network Topology
 
+### Physical Network
 ```
 Internet → 5G Antenna → PoE Injector → Router (WAN)
                                           │
@@ -78,6 +80,41 @@ Internet → 5G Antenna → PoE Injector → Router (WAN)
                     │                     │                     │
                   Pi5 #1              Pi5 #2              CM3588 NAS
 ```
+
+## Tailscale Network
+
+All devices are connected via [Tailscale](https://tailscale.com/) for secure remote access and mesh networking.
+
+### Tailscale Devices
+| Device | Hostname | Role | IP |
+|--------|----------|------|-----|
+| Mac Mini | `mac-mini-darek` | Control Node | Tailscale |
+| MacBook Pro | `macbook-pro-apple` | Development | Tailscale |
+| iPhone 12 | `iphone-12` | Mobile Access | Tailscale |
+| CM3588 NAS | `nas-photoprism` | Storage, PhotoPrism | 192.168.0.10 |
+| Pi5 #1 | `pi5cam` | AI Camera | .local |
+| Pi5 #2 | `pi5main` | Rails Staging | .local |
+
+### SSH Access
+Quick SSH access via Tailscale hostnames:
+```bash
+ssh rege@nas-photoprism
+ssh rege@pi5cam
+ssh rege@pi5main
+```
+
+Or use the included SSH config:
+```bash
+# Include in ~/.ssh/config:
+Include ~/code/homerack/ssh_config
+
+# Then simply use:
+ssh nas
+ssh pi5cam
+ssh pi5main
+```
+
+See `ssh_config` for full configuration.
 
 ## Power Distribution
 

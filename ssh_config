@@ -1,0 +1,73 @@
+# HomeRack SSH Config for Tailscale
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# USAGE:
+#   ssh nas
+#   ssh pi5cam
+#   ssh pi5main
+#   ssh macbook
+#   ssh macmini
+#
+# To use this config:
+#   1. Copy to ~/.ssh/config or include it:
+#      echo "Include ~/code/homerack/ssh_config" >> ~/.ssh/config
+#
+#   2. Or use directly:
+#      ssh -F ~/code/homerack/ssh_config nas
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# NAS - CM3588 with PhotoPrism
+Host nas nas-photoprism
+    HostName nas-photoprism
+    User rege
+    ForwardAgent yes
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+
+# Raspberry Pi 5 - AI Camera
+Host pi5cam
+    HostName pi5cam
+    User rege
+    ForwardAgent yes
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+
+# Raspberry Pi 5 - Main (Rails Staging)
+Host pi5main
+    HostName pi5main
+    User rege
+    ForwardAgent yes
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+
+# MacBook Pro
+Host macbook macbook-pro-apple
+    HostName macbook-pro-apple
+    User rege
+    ForwardAgent yes
+
+# Mac Mini
+Host macmini mac-mini-darek
+    HostName mac-mini-darek
+    User rege
+    ForwardAgent yes
+
+# iPhone (if SSH server is running)
+Host iphone iphone-12
+    HostName iphone-12
+    User mobile
+    Port 2222
+
+# Global defaults for all Tailscale hosts
+Host nas-photoprism pi5cam pi5main macbook-pro-apple mac-mini-darek iphone-12
+    # Accept new host keys automatically on Tailscale network
+    StrictHostKeyChecking accept-new
+    # Keep connections alive
+    TCPKeepAlive yes
+    # Compression for slower connections
+    Compression yes
+    # Connection sharing for faster subsequent connections
+    ControlMaster auto
+    ControlPath ~/.ssh/sockets/%r@%h:%p
+    ControlPersist 10m

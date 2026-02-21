@@ -43,13 +43,13 @@ all:
       hosts:
         # AI Camera Pi
         pi5cam:
-          ansible_host: pi5cam.local
+          ansible_host: pi5cam  # Tailscale hostname (fallback: pi5cam.local)
           ansible_user: rege
           description: "Raspberry Pi 5 - AI Camera"
 
         # Main Pi - Rails staging server
         pi5main:
-          ansible_host: pi5main.local
+          ansible_host: pi5main  # Tailscale hostname (fallback: pi5main.local)
           ansible_user: rege
           description: "Raspberry Pi 5 - Rails Staging"
 
@@ -68,11 +68,11 @@ all:
     # NAS / Storage Nodes
     # ─────────────────────────────────────────────────────────────────────────
     nas:
-      hosts: {}
-        # cm3588:
-        #   ansible_host: 192.168.1.103
-        #   ansible_user: pi
-        #   description: "CM3588 NAS"
+      hosts:
+        cm3588:
+          ansible_host: nas-photoprism  # Tailscale hostname (fallback: 192.168.0.10)
+          ansible_user: rege
+          description: "CM3588 NAS - PhotoPrism"
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Global Variables
